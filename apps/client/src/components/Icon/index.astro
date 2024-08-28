@@ -1,0 +1,31 @@
+---
+import { Image } from "astro:assets";
+import x from "@assets/icons/ic_x.svg";
+import facebook from "@assets/icons/ic_fb.svg";
+import menu from "@assets/icons/ic_menu.svg";
+import messageReply from "@assets/icons/ic_message_reply.svg";
+import shoppingCart from "@assets/icons/ic_shopping_cart.svg";
+import trash from "@assets/icons/ic_trash.svg";
+
+const iconImages = {
+  x,
+  facebook,
+  menu,
+  messageReply,
+  shoppingCart,
+  trash,
+};
+
+export interface Props {
+  iconName: keyof typeof iconImages;
+}
+
+const { iconName } = Astro.props;
+---
+
+<Image
+  src={iconImages[iconName]}
+  alt={`icon icon-${iconName}`}
+  width="24"
+  height="24"
+/>

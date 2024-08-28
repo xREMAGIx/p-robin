@@ -1,0 +1,9 @@
+tasks:
+  install:
+    command: "bun install"
+  dev:
+    command: "bun dev"
+    options:
+      envFile: ".env.dev"
+  clearModules:
+    command: "rm -rf node_modules"

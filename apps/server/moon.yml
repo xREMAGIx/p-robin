@@ -1,0 +1,30 @@
+tasks:
+  install:
+    command: "bun install"
+    local: true
+  dev:
+    command: "bun dev"
+    options:
+      envFile: ".env.dev"
+  devWithStudio:
+    command: "bun dev && studio"
+    options:
+      envFile: ".env.dev"
+  generateMigration:
+    command: "bun generate"
+  migrate:
+    command: "bun migrate"
+    options:
+      envFile: ".env.dev"
+  dropMigration:
+    command: "bun drop-migration"
+  studio:
+    command: "bun studio"
+    options:
+      envFile: ".env.dev"
+  seed:
+    command: "bun seed"
+    options:
+      envFile: ".env.dev"
+  clearModules:
+    command: "rm -rf node_modules"

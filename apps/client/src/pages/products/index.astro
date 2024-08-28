@@ -1,0 +1,11 @@
+---
+import ProductList from "@containers/products/ProductList";
+import Layout from "@layouts/Layout.astro";
+---
+
+<Layout title="Product">
+  <div class="p-product container mx-auto px-4 pt-4 pb-8">
+    <h2 class="text-2xl font-bold mb-8">Product list</h2>
+    <ProductList client:load />
+  </div>
+</Layout>

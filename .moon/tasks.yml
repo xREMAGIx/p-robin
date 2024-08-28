@@ -1,0 +1,3 @@
+tasks:
+  format:
+    command: "prettier --check ."

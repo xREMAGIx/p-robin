@@ -1,0 +1,14 @@
+{
+  "create_product": "create product",
+  "list_product": "list product",
+  "update_product": "update product",
+  "product_name": "name",
+  "product_barcode": "barcode",
+  "product_description": "description",
+  "product_price": "price",
+  "product_cost_price": "cost price",
+  "product_status": "status",
+  "product_draft": "draft",
+  "product_published": "published",
+  "product_end_of_service": "end of service"
+}

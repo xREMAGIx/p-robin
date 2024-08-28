@@ -1,0 +1,173 @@
+{% set pasCalCaseName = name | pascal_case %}
+{% set camelCaseName = name | camel_case %}
+{% set kebabCaseName = name | kebab_case %}
+
+import { SQLWrapper, and, asc, count, desc, eq, like, sql } from "drizzle-orm";
+import { DBType } from "../config/database";
+import { {{camelCaseName}}Table } from "../db-schema";
+import { WithAuthenParams } from "../models/base";
+import {
+Create{{pasCalCaseName}}Params,
+Delete{{pasCalCaseName}}Params,
+GetDetail{{pasCalCaseName}}Params,
+GetList{{pasCalCaseName}}Params,
+Update{{pasCalCaseName}}Params,
+} from "../models/{{camelCaseName}}";
+
+export default class {{pasCalCaseName}}Service {
+private db;
+
+constructor(db: DBType) {
+this.db = db;
+}
+
+async getTotal() {
+const result = await this.db.select({ count: count() }).from({{camelCaseName}}Table);
+
+return result[0].count;
+}
+
+async getListPagePagination(params: GetList{{pasCalCaseName}}Params) {
+const { sortBy, sortOrder, limit = 10, page = 1, name } = params;
+
+//* Filters
+const filters: SQLWrapper[] = [];
+
+if (name) filters.push(sql`unaccent(${ {{camelCaseName}}Table.name }) ilike unaccent('%${sql.raw(
+name
+)}%')`);
+
+//* Queries
+const {{camelCaseName}}List = await this.db
+.select()
+.from({{camelCaseName}}Table)
+.where(and(...filters))
+.limit(limit)
+.offset(limit * (page - 1))
+.orderBy(
+sortOrder === "asc"
+? asc({{camelCaseName}}Table[sortBy ?? "createdAt"])
+: desc({{camelCaseName}}Table[sortBy ?? "createdAt"])
+);
+
+const totalQueryResult = await this.db
+.select({ count: count() })
+.from({{camelCaseName}}Table)
+.where(and(...filters));
+
+//* Results
+const total = Number(totalQueryResult?.[0]?.count);
+const totalPages = Math.ceil(total / limit);
+
+return {
+{{camelCaseName}}s: {{camelCaseName}}List,
+meta: {
+limit: limit,
+page: page,
+total: total,
+totalPages: totalPages,
+},
+};
+}
+
+async getListOffsetPagination(params: GetList{{pasCalCaseName}}Params) {
+const { sortBy, sortOrder, limit = 10, offset = 0, name } = params;
+
+//* Filters
+const filters: SQLWrapper[] = [];
+
+if (name) filters.push(sql`unaccent(${ {{camelCaseName}}Table.name} ) ilike unaccent('%${sql.raw(
+name
+)}%')`);
+
+//* Queries
+const {{camelCaseName}}List = await this.db
+.select()
+.from({{camelCaseName}}Table)
+.where(and(...filters))
+.limit(limit)
+.offset(offset)
+.orderBy(
+sortOrder === "asc"
+? asc({{camelCaseName}}Table[sortBy ?? "createdAt"])
+: desc({{camelCaseName}}Table[sortBy ?? "createdAt"])
+);
+
+let hasMore = false;
+
+if ({{camelCaseName}}List.length === limit) {
+const totalQueryResult = await this.db
+.select({ count: count() })
+.from({{camelCaseName}}Table)
+.where(and(...filters));
+
+const total = Number(totalQueryResult?.[0]?.count);
+
+hasMore =
+total > limit * (offset / limit) + {{camelCaseName}}List.length ? true : false;
+} else {
+hasMore = {{camelCaseName}}List.length > limit ? true : false;
+}
+
+//* Results
+
+return {
+{{camelCaseName}}s: {{camelCaseName}}List,
+meta: {
+limit: limit,
+offset: offset,
+hasMore: hasMore,
+},
+};
+}
+
+async getDetail(params: GetDetail{{pasCalCaseName}}Params) {
+const { id } = params;
+
+return await this.db.query.{{camelCaseName}}Table.findFirst({
+where: eq({{camelCaseName}}Table.id, id),
+});
+}
+
+async create(params: WithAuthenParams<Create{{pasCalCaseName}}Params>) {
+  const { userId, ...body } = params;
+
+  const results = await this.db
+  .insert({{camelCaseName}}Table)
+  .values({
+  ...body,
+  createdByUserId: userId,
+  updatedByUserId: userId,
+  })
+  .returning();
+
+  return results[0];
+  }
+
+  async update(params: WithAuthenParams<Update{{pasCalCaseName}}Params>) {
+    const { id, userId, ...rest } = params;
+
+    const results = await this.db
+    .update({{camelCaseName}}Table)
+    .set({
+    ...rest,
+    updatedAt: sql`now()`,
+    updatedByUserId: userId,
+    })
+    .where(eq({{camelCaseName}}Table.id, id))
+    .returning();
+
+    return results[0];
+    }
+
+    async delete(params: Delete{{pasCalCaseName}}Params) {
+    const { id } = params;
+
+    const results = await this.db
+    .delete({{camelCaseName}}Table)
+    .where(eq({{camelCaseName}}Table.id, id))
+    .returning({ id: {{camelCaseName}}Table.id });
+
+    return results[0];
+    }
+    }

@@ -1,0 +1,22 @@
+---
+export const prerender = false;
+
+import { ROUTE } from "@config/enums.ts";
+import ProductDetail from "@containers/products/ProductDetail";
+import Layout from "@layouts/Layout.astro";
+
+const { id } = Astro.params;
+---
+
+<Layout title="Product detail">
+  <div class="p-productDetail container mx-auto px-4 pt-4 pb-8">
+    <div class="breadcrumbs text-sm mb-4">
+      <ul>
+        <li><a href={ROUTE.HOME}>Home</a></li>
+        <li><a href={ROUTE.PRODUCTS}>Product list</a></li>
+        <li>Product detail</li>
+      </ul>
+    </div>
+    <ProductDetail client:load id={id ?? ""} />
+  </div>
+</Layout>

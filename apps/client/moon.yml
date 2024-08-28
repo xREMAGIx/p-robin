@@ -1,0 +1,7 @@
+tasks:
+  install:
+    command: "npm install"
+  dev:
+    command: "npm run dev"
+  clearModules:
+    command: "rm -rf node_modules"

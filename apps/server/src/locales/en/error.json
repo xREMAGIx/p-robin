@@ -1,0 +1,10 @@
+{
+  "invalid_auth_data": "Invalid authorized data",
+  "invalid_id": "Invalid id",
+  "invalid_token": "Invalid token",
+  "no_token": "Unauthorized",
+  "login_info_incorrect": "Username or password not correct",
+  "invalid_sort_by": "sortBy not valid!",
+  "invalid_sort_order": "sortOrder not valid!",
+  "not_found_data": "Data not found!"
+}

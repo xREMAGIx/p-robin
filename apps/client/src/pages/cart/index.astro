@@ -1,0 +1,15 @@
+---
+import ProductListCart from "@containers/cart/ProductList";
+import Layout from "../../layouts/Layout.astro";
+import { InfoCart } from "@containers/cart/Info";
+---
+
+<Layout title="Cart">
+  <div class="p-cart container mx-auto px-4 pt-4 pb-8">
+    <h2 class="text-2xl font-bold mb-8">Cart</h2>
+    <div class="flex flex-col gap-4">
+      <ProductListCart client:load />
+      <InfoCart client:load />
+    </div>
+  </div>
+</Layout>

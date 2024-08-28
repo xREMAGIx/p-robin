@@ -1,0 +1,32 @@
+{
+  "name": "server",
+  "version": "1.0.50",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch src/index.ts",
+    "generate": "drizzle-kit generate",
+    "drop-migration": "drizzle-kit drop",
+    "migrate": "bun src/config/migrate.ts",
+    "studio": "bunx drizzle-kit studio",
+    "seed": "bun run src/seeds/$(echo $file).ts"
+  },
+  "dependencies": {
+    "@elysiajs/cors": "^1.1.0",
+    "@elysiajs/jwt": "^1.1.0",
+    "@elysiajs/swagger": "^1.1.0",
+    "dayjs": "^1.11.12",
+    "drizzle-orm": "^0.32.2",
+    "drizzle-typebox": "^0.1.1",
+    "elysia": "^1.1.7",
+    "i18next": "^23.12.2",
+    "i18next-resources-to-backend": "^1.2.1",
+    "postgres": "^3.4.4"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "bun-types": "latest",
+    "drizzle-kit": "^0.23.2",
+    "typescript": "^5.5.4"
+  },
+  "module": "src/index.js"
+}
