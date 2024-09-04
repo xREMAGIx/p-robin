@@ -1,4 +1,4 @@
 type ApiError = {
   code: string;
-  message: string;
+  detail: string;
 };

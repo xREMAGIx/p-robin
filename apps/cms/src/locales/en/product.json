@@ -6,6 +6,7 @@
   "product_barcode": "barcode",
   "product_description": "description",
   "product_price": "price",
+  "product_sale_price": "cost price",
   "product_cost_price": "cost price",
   "product_status": "status",
   "product_draft": "draft",

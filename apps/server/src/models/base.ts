@@ -27,7 +27,7 @@ export const apiErrorSchema = t.Object({
       status: t.String(),
       errorCode: t.String(),
       title: t.String(),
-      detail: t.Optional(t.String()),
+      detail: t.String(),
     })
   ),
 });

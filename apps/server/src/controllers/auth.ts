@@ -119,7 +119,7 @@ export const authRoutes = new Elysia({
           if (!refreshData) {
             throw new ApiError({
               status: "401",
-              code: ERROR_CODES.UNAUTHORIZED_ERROR_INVALID_TOKEN,
+              errorCode: ERROR_CODES.UNAUTHORIZED_ERROR_INVALID_TOKEN,
               title: ERROR_CODES.UNAUTHORIZED_ERROR_INVALID_TOKEN,
               messageCode: "invalid_token",
             });
@@ -128,7 +128,7 @@ export const authRoutes = new Elysia({
           if (!refreshData["id"]) {
             throw new ApiError({
               status: "401",
-              code: ERROR_CODES.UNAUTHORIZED_ERROR_INVALID_TOKEN_DATA,
+              errorCode: ERROR_CODES.UNAUTHORIZED_ERROR_INVALID_TOKEN_DATA,
               title: ERROR_CODES.UNAUTHORIZED_ERROR_INVALID_TOKEN_DATA,
               messageCode: "invalid_auth_data",
             });

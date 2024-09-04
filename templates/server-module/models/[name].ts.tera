@@ -63,6 +63,14 @@ export const delete{{pasCalCaseName}}DataSchema = t.Object({
 data: t.Object({ id: t.Number() }),
 });
 
+export const multipleDelete{{pasCalCaseName}}ParamSchema = t.Object({
+ids: t.Array(t.Number()),
+});
+
+export const multipleDelete{{pasCalCaseName}}DataSchema = t.Object({
+data: t.Array(t.Object({ id: t.Number() })),
+});
+
 export type {{pasCalCaseName}}Data = Static<typeof baseSelect{{pasCalCaseName}}Schema>;
 
   export type {{pasCalCaseName}}ListPagePaginationData = Static< typeof list{{pasCalCaseName}}PagePaginationDataSchema>;
@@ -82,8 +90,10 @@ export type {{pasCalCaseName}}Data = Static<typeof baseSelect{{pasCalCaseName}}S
           export type Delete{{pasCalCaseName}}Params = {
           id: number;
           };
+          export type DeleteMultiple{{pasCalCaseName}}Params = Static< typeof
+            multipleDelete{{pasCalCaseName}}ParamSchema>;
 
-          //* Model
-          export const {{camelCaseName}}Model = new Elysia({ name: "{{kebabCaseName}}-model" }).model({
-          "{{camelCaseName}}.data": baseSelect{{pasCalCaseName}}Schema,
-          });
+            //* Model
+            export const {{camelCaseName}}Model = new Elysia({ name: "{{kebabCaseName}}-model" }).model({
+            "{{camelCaseName}}.data": baseSelect{{pasCalCaseName}}Schema,
+            });

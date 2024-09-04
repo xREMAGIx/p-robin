@@ -9,6 +9,8 @@ import {
   listProductOffsetPaginationDataSchema,
   listProductPagePaginationDataSchema,
   listProductQuerySchema,
+  multipleDeleteProductDataSchema,
+  multipleDeleteProductParamSchema,
   productModel,
   updateProductParamSchema,
 } from "../models/product";
@@ -157,111 +159,135 @@ export const productRoutes = new Elysia({
           },
         }
       )
-      //* Create
+      //* Get detail
       .guard((innerApp) =>
-        innerApp.use(authenticatePlugin).post(
-          "/create",
-          async ({ body, userId, productService }) => {
-            const data = await productService.create({ ...body, userId });
+        innerApp.use(idValidatePlugin).get(
+          "/:id",
+          async ({ idParams, productService }) => {
+            const data = await productService.getDetail({ id: idParams });
+
+            if (!data) {
+              throw new ApiError({
+                status: "404",
+                errorCode: ERROR_CODES.NOT_FOUND_DATA,
+                title: ERROR_CODES.NOT_FOUND_DATA,
+                messageCode: "not_found_data",
+              });
+            }
 
             return {
-              data: data,
+              data,
             };
           },
           {
-            body: createProductParamSchema,
             response: {
               200: detailProductDataSchema,
               401: apiErrorSchema,
+              404: apiErrorSchema,
               422: apiErrorSchema,
               500: apiErrorSchema,
             },
             detail: {
-              summary: "Create Product",
+              summary: "Get Product Detail",
             },
           }
         )
       )
+      //* Create
+      .guard((innerApp) =>
+        innerApp
+          .use(authenticatePlugin)
+          .post(
+            "/create",
+            async ({ body, userId, productService }) => {
+              const data = await productService.create({ ...body, userId });
 
-      .use(idValidatePlugin)
-      //* Get detail
-      .get(
-        "/:id",
-        async ({ idParams, productService }) => {
-          const data = await productService.getDetail({ id: idParams });
+              return {
+                data: data,
+              };
+            },
+            {
+              body: createProductParamSchema,
+              response: {
+                200: detailProductDataSchema,
+                401: apiErrorSchema,
+                422: apiErrorSchema,
+                500: apiErrorSchema,
+              },
+              detail: {
+                summary: "Create Product",
+              },
+            }
+          )
+          .delete(
+            "/multiple-delete",
+            async ({ body, productService }) => {
+              const data = await productService.multipleDelete({ ...body });
 
-          if (!data) {
-            throw new ApiError({
-              status: "404",
-              errorCode: ERROR_CODES.NOT_FOUND_DATA,
-              title: ERROR_CODES.NOT_FOUND_DATA,
-              messageCode: "not_found_data",
-            });
-          }
+              return {
+                data: data,
+              };
+            },
+            {
+              body: multipleDeleteProductParamSchema,
+              response: {
+                200: multipleDeleteProductDataSchema,
+                401: apiErrorSchema,
+                422: apiErrorSchema,
+                500: apiErrorSchema,
+              },
+              detail: {
+                summary: "Multiple Delete Product",
+              },
+            }
+          )
+          .use(idValidatePlugin)
+          //* Update
+          .put(
+            "/:id",
+            async ({ idParams, body, userId, productService }) => {
+              const data = await productService.update({
+                ...body,
+                userId,
+                id: idParams,
+              });
 
-          return {
-            data,
-          };
-        },
-        {
-          response: {
-            200: detailProductDataSchema,
-            401: apiErrorSchema,
-            404: apiErrorSchema,
-            422: apiErrorSchema,
-            500: apiErrorSchema,
-          },
-          detail: {
-            summary: "Get Product Detail",
-          },
-        }
-      )
-      .use(authenticatePlugin)
-      //* Update
-      .put(
-        "/:id",
-        async ({ idParams, body, userId, productService }) => {
-          const data = await productService.update({
-            ...body,
-            userId,
-            id: idParams,
-          });
+              return {
+                data,
+              };
+            },
+            {
+              body: updateProductParamSchema,
+              response: {
+                200: detailProductDataSchema,
+                401: apiErrorSchema,
+                422: apiErrorSchema,
+                500: apiErrorSchema,
+              },
+              detail: {
+                summary: "Update Product",
+              },
+            }
+          )
+          //* Delete
+          .delete(
+            "/:id",
+            async ({ idParams, productService }) => {
+              const res = await productService.delete({ id: idParams });
 
-          return {
-            data,
-          };
-        },
-        {
-          body: updateProductParamSchema,
-          response: {
-            200: detailProductDataSchema,
-            401: apiErrorSchema,
-            422: apiErrorSchema,
-            500: apiErrorSchema,
-          },
-          detail: {
-            summary: "Update Product",
-          },
-        }
-      )
-      //* Delete
-      .delete(
-        "/:id",
-        async ({ idParams, productService }) => {
-          const res = await productService.delete({ id: idParams });
-
-          return { data: res };
-        },
-        {
-          response: {
-            200: deleteProductDataSchema,
-            401: apiErrorSchema,
-            422: apiErrorSchema,
-            500: apiErrorSchema,
-          },
-          detail: {
-            summary: "Delete Product",
-          },
-        }
+              return { data: res };
+            },
+            {
+              response: {
+                200: deleteProductDataSchema,
+                401: apiErrorSchema,
+                422: apiErrorSchema,
+                500: apiErrorSchema,
+              },
+              detail: {
+                summary: "Delete Product",
+              },
+            }
+          )
       )
 );

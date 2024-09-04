@@ -10,10 +10,12 @@ import {
 create{{pasCalCaseName}}ParamSchema,
 delete{{pasCalCaseName}}DataSchema,
 detail{{pasCalCaseName}}DataSchema,
-{{camelCaseName}}Model,
 list{{pasCalCaseName}}OffsetPaginationDataSchema,
 list{{pasCalCaseName}}PagePaginationDataSchema,
 list{{pasCalCaseName}}QuerySchema,
+multipleDelete{{pasCalCaseName}}DataSchema,
+multipleDelete{{pasCalCaseName}}ParamSchema,
+{{camelCaseName}}Model,
 update{{pasCalCaseName}}ParamSchema,
 } from "../models/{{kebabCaseName}}";
 import { ApiError } from "../utils/errors";
@@ -159,35 +161,9 @@ summary: "Get {{pasCalCaseName}} List (offset pagination)",
 },
 }
 )
-//* Create
-.guard((innerApp) =>
-innerApp.use(authenticatePlugin).post(
-"/create",
-async ({ body, userId, {{camelCaseName}}Service }) => {
-const data = await {{camelCaseName}}Service.create({ ...body, userId });
-
-return {
-data: data,
-};
-},
-{
-body: create{{pasCalCaseName}}ParamSchema,
-response: {
-200: detail{{pasCalCaseName}}DataSchema,
-401: apiErrorSchema,
-422: apiErrorSchema,
-500: apiErrorSchema,
-},
-detail: {
-summary: "Create {{pasCalCaseName}}",
-},
-}
-)
-)
-
-.use(idValidatePlugin)
 //* Get detail
-.get(
+.guard((innerApp) =>
+innerApp.use(idValidatePlugin).get(
 "/:id",
 async ({ idParams, {{camelCaseName}}Service }) => {
 const data = await {{camelCaseName}}Service.getDetail({ id: idParams });
@@ -218,7 +194,56 @@ summary: "Get {{pasCalCaseName}} Detail",
 },
 }
 )
+)
+//* Create
+.guard((innerApp) =>
+innerApp
 .use(authenticatePlugin)
+.post(
+"/create",
+async ({ body, userId, {{camelCaseName}}Service }) => {
+const data = await {{camelCaseName}}Service.create({ ...body, userId });
+
+return {
+data: data,
+};
+},
+{
+body: create{{pasCalCaseName}}ParamSchema,
+response: {
+200: detail{{pasCalCaseName}}DataSchema,
+401: apiErrorSchema,
+422: apiErrorSchema,
+500: apiErrorSchema,
+},
+detail: {
+summary: "Create {{pasCalCaseName}}",
+},
+}
+)
+.delete(
+"/multiple-delete",
+async ({ body, {{camelCaseName}}Service }) => {
+const data = await {{camelCaseName}}Service.multipleDelete({ ...body });
+
+return {
+data: data,
+};
+},
+{
+body: multipleDelete{{pasCalCaseName}}ParamSchema,
+response: {
+200: multipleDelete{{pasCalCaseName}}DataSchema,
+401: apiErrorSchema,
+422: apiErrorSchema,
+500: apiErrorSchema,
+},
+detail: {
+summary: "Multiple Delete {{pasCalCaseName}}",
+},
+}
+)
+.use(idValidatePlugin)
 //* Update
 .put(
 "/:id",
@@ -265,5 +290,6 @@ detail: {
 summary: "Delete {{pasCalCaseName}}",
 },
 }
+)
 )
 );

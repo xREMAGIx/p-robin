@@ -1,9 +1,10 @@
-import { TOAST_SUCCESS_MESSAGE_CODE } from "@client/config/constants";
-import { server } from "@client/config/server";
-import { useBoundStore } from "@client/stores/useBoundStore";
+import { TOAST_SUCCESS_MESSAGE_CODE } from "@cms/config/constants";
+import { server } from "@cms/config/server";
+import { useBoundStore } from "@cms/stores/useBoundStore";
 import React, { useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router-dom";
 
 type LoginForm = {
@@ -12,6 +13,9 @@ type LoginForm = {
 };
 
 const Login: React.FunctionComponent = () => {
+  //* Hooks
+  const { t } = useTranslation(["common"]);
+
   //* Stores
   const { authProfile, setAuthProfile } = useBoundStore();
 
@@ -33,14 +37,14 @@ const Login: React.FunctionComponent = () => {
     setIsLoading(false);
 
     if (error) {
-      const err = error.value as Error;
-      toast.error(err.message);
+      const err = error.value.errors[0];
+      toast.error(err.detail);
       return;
     }
 
-    setAuthProfile(data.user);
+    setAuthProfile(data.data);
     methods.reset();
-    toast.success(TOAST_SUCCESS_MESSAGE_CODE.LOGIN);
+    toast.success(t(TOAST_SUCCESS_MESSAGE_CODE.LOGIN, { ns: "common" }));
   };
 
   if (authProfile) return <Navigate to="/" />;

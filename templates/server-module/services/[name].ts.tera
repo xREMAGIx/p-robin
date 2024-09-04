@@ -2,12 +2,23 @@
 {% set camelCaseName = name | camel_case %}
 {% set kebabCaseName = name | kebab_case %}
 
-import { SQLWrapper, and, asc, count, desc, eq, like, sql } from "drizzle-orm";
+import {
+SQLWrapper,
+and,
+asc,
+count,
+desc,
+eq,
+like,
+or,
+sql,
+} from "drizzle-orm";
 import { DBType } from "../config/database";
 import { {{camelCaseName}}Table } from "../db-schema";
 import { WithAuthenParams } from "../models/base";
 import {
 Create{{pasCalCaseName}}Params,
+DeleteMultiple{{pasCalCaseName}}Params,
 Delete{{pasCalCaseName}}Params,
 GetDetail{{pasCalCaseName}}Params,
 GetList{{pasCalCaseName}}Params,
@@ -169,5 +180,23 @@ async create(params: WithAuthenParams<Create{{pasCalCaseName}}Params>) {
     .returning({ id: {{camelCaseName}}Table.id });
 
     return results[0];
+    }
+
+    async multipleDelete(params: DeleteMultipleProductParams) {
+    const { ids } = params;
+    //* Filters
+    const filters: SQLWrapper[] = [];
+
+    ids.forEach((id) => {
+    filters.push(eq({{camelCaseName}}Table.id, id));
+    });
+
+    //* Queries
+    const result = await this.db
+    .delete({{camelCaseName}}Table)
+    .where(or(...filters))
+    .returning({ id: {{camelCaseName}}Table.id });
+
+    return result;
     }
     }

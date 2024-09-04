@@ -1,4 +1,4 @@
-import { ListTable } from "@client/containers/product/ListTable";
+import { ListTable } from "@cms/containers/product/ListTable";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -29,15 +29,9 @@ const Product: React.FunctionComponent = () => {
           ))}
         </ul>
       </div>
-      <div className="mt-4 flex justify-between items-center">
-        <p className="font-bold text-lg capitalize">
-          {t("list_product", { ns: "product" })}
-        </p>
-        <Link to={"/product/create"} className="btn btn-secondary">
-          {t("create")}
-        </Link>
-      </div>
-      <div className="divider" />
+      <p className="mt-4 font-bold text-lg capitalize">
+        {t("list_product", { ns: "product" })}
+      </p>
       <ListTable />
     </div>
   );

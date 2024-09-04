@@ -7,7 +7,7 @@ import { resolve } from "path";
 export default defineConfig({
   resolve: {
     alias: {
-      "@client": resolve(__dirname, "./src"),
+      "@cms": resolve(__dirname, "./src"),
       "@icons": resolve(__dirname, "../src/assets/icons"),
       "@server": resolve(__dirname, "../server/src"),
     },
