@@ -85,7 +85,7 @@ export const provinceTable = pgTable("province", {
     .defaultNow()
     .notNull(),
   code: varchar("code", { length: 256 }).unique(),
-  name: varchar("name"),
+  name: varchar("name").notNull(),
   nameEn: varchar("name_en", { length: 256 }),
   fullName: varchar("full_name", { length: 256 }),
   fullNameEn: varchar("full_name_en", { length: 256 }),

@@ -1,9 +1,10 @@
-import { SQLWrapper, and, asc, count, desc, eq, sql } from "drizzle-orm";
+import { SQLWrapper, and, asc, count, desc, eq, or, sql } from "drizzle-orm";
 import { DBType } from "../config/database";
 import { provinceTable } from "../db-schema";
 import { WithAuthenParams } from "../models/base";
 import {
   CreateProvinceParams,
+  DeleteMultipleProvinceParams,
   DeleteProvinceParams,
   GetDetailProvinceParams,
   GetListProvinceParams,
@@ -167,5 +168,23 @@ export default class ProvinceService {
       .returning({ id: provinceTable.id });
 
     return results[0];
+  }
+
+  async multipleDelete(params: DeleteMultipleProvinceParams) {
+    const { ids } = params;
+    //* Filters
+    const filters: SQLWrapper[] = [];
+
+    ids.forEach((id) => {
+      filters.push(eq(provinceTable.id, id));
+    });
+
+    //* Queries
+    const result = await this.db
+      .delete(provinceTable)
+      .where(or(...filters))
+      .returning({ id: provinceTable.id });
+
+    return result;
   }
 }

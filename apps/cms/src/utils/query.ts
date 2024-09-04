@@ -20,6 +20,26 @@ export const productQueryKeys = {
   delete: () => [...productQueryKeys.deletes()] as const,
 };
 
+export const provinceQueryKeys = {
+  all: ["province"] as const,
+  lists: () => [...provinceQueryKeys.all, "list"] as const,
+  list: ({ page, search, sortBy, sortOrder }: ListParams) =>
+    [
+      ...provinceQueryKeys.lists(),
+      { page, search, sortBy, sortOrder },
+    ] as const,
+  details: () => [...provinceQueryKeys.all, "detail"] as const,
+  detail: (id: string | number) =>
+    [...provinceQueryKeys.details(), id] as const,
+  creates: () => [...provinceQueryKeys.all, "create"] as const,
+  create: () => [...provinceQueryKeys.creates()] as const,
+  updates: () => [...provinceQueryKeys.all, "update"] as const,
+  update: (id: string | number) =>
+    [...provinceQueryKeys.updates(), id] as const,
+  deletes: () => [...provinceQueryKeys.all, "delete"] as const,
+  delete: () => [...provinceQueryKeys.deletes()] as const,
+};
+
 export const authQueryKeys = {
   all: ["auth"] as const,
   profile: () => [...authQueryKeys.all, "profile"] as const,

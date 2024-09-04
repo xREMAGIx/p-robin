@@ -5,7 +5,7 @@ import { authQueryKeys } from "@cms/utils/query";
 import type { PropsWithChildren } from "react";
 import React, { Suspense, useRef, type HTMLAttributes } from "react";
 import { useQuery } from "react-query";
-import { Link, Navigate } from "react-router-dom";
+import { NavLink, Navigate } from "react-router-dom";
 
 const menuList = [
   {
@@ -15,6 +15,10 @@ const menuList = [
   {
     href: "/product",
     label: "Product",
+  },
+  {
+    href: "/province",
+    label: "Province",
   },
 ];
 
@@ -147,7 +151,14 @@ export const ProtectedRoute: React.FunctionComponent<
                   drawerToggleRef.current.checked = false;
               }}
             >
-              <Link to={ele.href}>{ele.label}</Link>
+              <NavLink
+                to={ele.href}
+                className={({ isActive, isPending }) =>
+                  isPending ? "pending" : isActive ? "active" : ""
+                }
+              >
+                {ele.label}
+              </NavLink>
             </li>
           ))}
         </ul>

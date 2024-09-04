@@ -2,6 +2,7 @@ export const TOAST_SUCCESS_MESSAGE_CODE = {
   LOGIN: "message_login_success",
   CREATE: "message_create_success",
   UPDATE: "Update success!",
+  DELETE: "Delete success!",
 };
 
 export const FORM_VALIDATION_MESSAGE_CODE = {

@@ -51,6 +51,14 @@ export const deleteProvinceDataSchema = t.Object({
   data: t.Object({ id: t.Number() }),
 });
 
+export const multipleDeleteProvinceParamSchema = t.Object({
+  ids: t.Array(t.Number()),
+});
+
+export const multipleDeleteProvinceDataSchema = t.Object({
+  data: t.Array(t.Object({ id: t.Number() })),
+});
+
 export type ProvinceData = Static<typeof baseSelectProvinceSchema>;
 
 export type ProvinceListPagePaginationData = Static<
@@ -72,6 +80,9 @@ export type UpdateProvinceParams = Static<typeof updateProvinceParamSchema> & {
 export type DeleteProvinceParams = {
   id: number;
 };
+export type DeleteMultipleProvinceParams = Static<
+  typeof multipleDeleteProvinceParamSchema
+>;
 
 //* Model
 export const provinceModel = new Elysia({ name: "province-model" }).model({
