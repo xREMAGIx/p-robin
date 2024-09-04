@@ -1,9 +1,20 @@
-import { SQLWrapper, and, asc, count, desc, eq, like, sql } from "drizzle-orm";
+import {
+  SQLWrapper,
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  like,
+  or,
+  sql,
+} from "drizzle-orm";
 import { DBType } from "../config/database";
 import { productTable } from "../db-schema";
 import { WithAuthenParams } from "../models/base";
 import {
   CreateProductParams,
+  DeleteMultipleProductParams,
   DeleteProductParams,
   GetDetailProductParams,
   GetListProductParams,
@@ -168,5 +179,23 @@ export default class ProductService {
       .returning({ id: productTable.id });
 
     return results[0];
+  }
+
+  async multipleDelete(params: DeleteMultipleProductParams) {
+    const { ids } = params;
+    //* Filters
+    const filters: SQLWrapper[] = [];
+
+    ids.forEach((id) => {
+      filters.push(eq(productTable.id, id));
+    });
+
+    //* Queries
+    const result = await this.db
+      .delete(productTable)
+      .where(or(...filters))
+      .returning({ id: productTable.id });
+
+    return result;
   }
 }

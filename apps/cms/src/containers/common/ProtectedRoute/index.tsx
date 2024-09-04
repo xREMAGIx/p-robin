@@ -1,7 +1,7 @@
-import Icon from "@client/components/Icon";
-import { server } from "@client/config/server";
-import { useBoundStore } from "@client/stores/useBoundStore";
-import { authQueryKeys } from "@client/utils/query";
+import Icon from "@cms/components/Icon";
+import { server } from "@cms/config/server";
+import { useBoundStore } from "@cms/stores/useBoundStore";
+import { authQueryKeys } from "@cms/utils/query";
 import type { PropsWithChildren } from "react";
 import React, { Suspense, useRef, type HTMLAttributes } from "react";
 import { useQuery } from "react-query";
@@ -69,7 +69,7 @@ export const ProtectedRoute: React.FunctionComponent<
   }
 
   return (
-    <div className="drawer">
+    <div className="drawer lg:drawer-open">
       <input
         ref={drawerToggleRef}
         id="my-drawer"
@@ -81,7 +81,10 @@ export const ProtectedRoute: React.FunctionComponent<
 
         <div className="navbar bg-base-100">
           <div className="flex flex-1 gap-x-1">
-            <label htmlFor="my-drawer" className="btn btn-circle drawer-button">
+            <label
+              htmlFor="my-drawer"
+              className="btn btn-circle drawer-button lg:hidden"
+            >
               <Icon iconName="menu" />
             </label>
             <a className="btn btn-ghost text-xl">Robin</a>

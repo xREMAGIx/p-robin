@@ -1,6 +1,6 @@
-import { TOAST_SUCCESS_MESSAGE_CODE } from "@client/config/constants";
-import { server } from "@client/config/server";
-import { InfoForm, ProductInfoForm } from "@client/containers/product/InfoForm";
+import { TOAST_SUCCESS_MESSAGE_CODE } from "@cms/config/constants";
+import { server } from "@cms/config/server";
+import { InfoForm, ProductInfoForm } from "@cms/containers/product/InfoForm";
 import React, { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -35,15 +35,15 @@ const ProductCreate: React.FunctionComponent = () => {
   //* Function
   const handleCreate = async (form: ProductInfoForm) => {
     setIsCreating(true);
-    const { error } = await server.api.product.create.post({
+    const { error } = await server.api.products.create.post({
       ...form,
       status: parseInt(form.status, 10),
     });
     setIsCreating(false);
 
     if (error) {
-      const err = error.value as Error;
-      toast.error(err.message);
+      const err = error.value.errors[0];
+      toast.error(err.detail ?? err.title);
       return;
     }
 

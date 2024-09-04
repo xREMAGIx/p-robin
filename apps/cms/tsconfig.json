@@ -7,7 +7,7 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@client/*": ["src/*"],
+      "@cms/*": ["src/*"],
       "@server": ["../server/src/index"],
       "@server/*": ["../server/src/*"]
     },

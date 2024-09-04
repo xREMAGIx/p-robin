@@ -79,14 +79,14 @@ const router = createBrowserRouter([
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {
-      const err = error as ApiError;
-      toast.error(`Error: ${err.message}`);
+      const err = error as Array<ApiError>;
+      toast.error(`Error: ${err[0].detail}`);
     },
   }),
   mutationCache: new MutationCache({
     onError: (error) => {
-      const err = error as ApiError;
-      toast.error(`Error: ${err.message}`);
+      const err = error as Array<ApiError>;
+      toast.error(`Error: ${err[0].detail}`);
     },
   }),
   defaultOptions: {

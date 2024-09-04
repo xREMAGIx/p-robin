@@ -1,4 +1,4 @@
-import store from "@client/stores/store";
+import store from "@cms/stores/store";
 import { treaty } from "@elysiajs/eden";
 import type { App } from "@server";
 

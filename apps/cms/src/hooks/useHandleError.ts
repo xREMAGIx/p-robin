@@ -1,5 +1,5 @@
-import { server } from "@client/config/server";
-import { useBoundStore } from "@client/stores/useBoundStore";
+import { server } from "@cms/config/server";
+import { useBoundStore } from "@cms/stores/useBoundStore";
 import { useState } from "react";
 
 export default function useHandleError() {

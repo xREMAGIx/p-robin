@@ -1,5 +1,5 @@
-import { FORM_VALIDATION_MESSAGE_CODE } from "@client/config/constants";
-import { PRODUCT_STATUS, PRODUCT_STATUS_CODE } from "@client/config/enums";
+import { FORM_VALIDATION_MESSAGE_CODE } from "@cms/config/constants";
+import { PRODUCT_STATUS, PRODUCT_STATUS_CODE } from "@cms/config/enums";
 import cls from "classnames";
 import type { PropsWithChildren } from "react";
 import React, { useMemo, type HTMLAttributes } from "react";
@@ -11,6 +11,7 @@ export interface ProductInfoForm {
   barcode: string;
   price: number;
   costPrice: number;
+  salePrice: number;
   description: string;
   status: string;
 }
@@ -121,6 +122,31 @@ export const InfoForm: React.FunctionComponent<
                   type="number"
                   className="grow"
                   placeholder={t("product_price", { ns: "product" })}
+                />
+              </label>
+              {error?.message && (
+                <p className="mt-1 text-error">{error?.message}</p>
+              )}
+            </>
+          )}
+        />
+      </div>
+      <div className="mt-2">
+        <Controller
+          name="salePrice"
+          defaultValue={0}
+          rules={{
+            required: t(FORM_VALIDATION_MESSAGE_CODE.REQUIRED),
+          }}
+          render={({ field, fieldState: { error } }) => (
+            <>
+              <label className="input input-bordered flex items-center gap-2">
+                {t("product_sale_price", { ns: "product" })}
+                <input
+                  {...field}
+                  type="number"
+                  className="grow"
+                  placeholder={t("product_sale_price", { ns: "product" })}
                 />
               </label>
               {error?.message && (

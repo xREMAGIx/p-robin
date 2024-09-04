@@ -70,6 +70,14 @@ export const deleteProductDataSchema = t.Object({
   data: t.Object({ id: t.Number() }),
 });
 
+export const multipleDeleteProductParamSchema = t.Object({
+  ids: t.Array(t.Number()),
+});
+
+export const multipleDeleteProductDataSchema = t.Object({
+  data: t.Array(t.Object({ id: t.Number() })),
+});
+
 export type ProductData = Static<typeof baseSelectProductSchema>;
 
 export type ProductListPagePaginationData = Static<
@@ -91,6 +99,9 @@ export type UpdateProductParams = Static<typeof updateProductParamSchema> & {
 export type DeleteProductParams = {
   id: number;
 };
+export type DeleteMultipleProductParams = Static<
+  typeof multipleDeleteProductParamSchema
+>;
 
 //* Model
 export const productModel = new Elysia({ name: "product-model" }).model({

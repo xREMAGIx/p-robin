@@ -7,7 +7,6 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-//* User
 export const userTable = pgTable("user", {
   id: serial("id").primaryKey(),
   username: text("username").notNull(),
@@ -22,7 +21,6 @@ export const userTable = pgTable("user", {
     .notNull(),
 });
 
-//* Customer
 export const customerTable = pgTable("customer", {
   id: serial("id").primaryKey(),
   username: text("username").notNull(),
@@ -37,7 +35,6 @@ export const customerTable = pgTable("customer", {
     .notNull(),
 });
 
-//* Product
 export const productTable = pgTable("product", {
   id: serial("id").primaryKey(),
   createdAt: timestamp("created_at", { withTimezone: true })
@@ -63,7 +60,6 @@ export const productTable = pgTable("product", {
   status: integer("status").notNull(),
 });
 
-//* Order
 export const customerOrderTable = pgTable("customer_order", {
   id: serial("id").primaryKey(),
   code: varchar("code", { length: 256 }),
