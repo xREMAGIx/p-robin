@@ -6,10 +6,13 @@ import {
   createDistrictParamSchema,
   deleteDistrictDataSchema,
   detailDistrictDataSchema,
+  detailDistrictQueryParamSchema,
   districtModel,
   listDistrictOffsetPaginationDataSchema,
   listDistrictPagePaginationDataSchema,
   listDistrictQuerySchema,
+  multipleDeleteDistrictDataSchema,
+  multipleDeleteDistrictParamSchema,
   updateDistrictParamSchema,
 } from "../models/district";
 import { ApiError } from "../utils/errors";
@@ -185,8 +188,11 @@ export const districtRoutes = new Elysia({
       //* Get detail
       .get(
         "/:id",
-        async ({ idParams, districtService }) => {
-          const data = await districtService.getDetail({ id: idParams });
+        async ({ idParams, districtService, query: { ...queries } }) => {
+          const data = await districtService.getDetail({
+            id: idParams,
+            ...queries,
+          });
 
           if (!data) {
             throw new ApiError({
@@ -202,6 +208,7 @@ export const districtRoutes = new Elysia({
           };
         },
         {
+          query: detailDistrictQueryParamSchema,
           response: {
             200: detailDistrictDataSchema,
             401: apiErrorSchema,
@@ -211,6 +218,28 @@ export const districtRoutes = new Elysia({
           },
           detail: {
             summary: "Get District Detail",
+          },
+        }
+      )
+      .delete(
+        "/multiple-delete",
+        async ({ body, districtService }) => {
+          const data = await districtService.multipleDelete({ ...body });
+
+          return {
+            data: data,
+          };
+        },
+        {
+          body: multipleDeleteDistrictParamSchema,
+          response: {
+            200: multipleDeleteDistrictDataSchema,
+            401: apiErrorSchema,
+            422: apiErrorSchema,
+            500: apiErrorSchema,
+          },
+          detail: {
+            summary: "Multiple Delete District",
           },
         }
       )

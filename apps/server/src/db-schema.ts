@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   integer,
   pgTable,
@@ -92,6 +93,10 @@ export const provinceTable = pgTable("province", {
   codeName: varchar("code_name", { length: 256 }),
 });
 
+export const provinceRelation = relations(provinceTable, ({ many }) => ({
+  districts: many(districtTable),
+}));
+
 export const districtTable = pgTable("district", {
   id: serial("id").primaryKey(),
   createdAt: timestamp("created_at", { withTimezone: true })
@@ -101,7 +106,7 @@ export const districtTable = pgTable("district", {
     .defaultNow()
     .notNull(),
   code: varchar("code", { length: 256 }).unique(),
-  name: varchar("name"),
+  name: varchar("name").notNull(),
   nameEn: varchar("name_en", { length: 256 }),
   fullName: varchar("full_name", { length: 256 }),
   fullNameEn: varchar("full_name_en", { length: 256 }),
@@ -110,6 +115,14 @@ export const districtTable = pgTable("district", {
     () => provinceTable.code
   ),
 });
+
+export const districtRelation = relations(districtTable, ({ one, many }) => ({
+  province: one(provinceTable, {
+    fields: [districtTable.provinceCode],
+    references: [provinceTable.code],
+  }),
+  wards: many(wardTable),
+}));
 
 export const wardTable = pgTable("ward", {
   id: serial("id").primaryKey(),
@@ -120,7 +133,7 @@ export const wardTable = pgTable("ward", {
     .defaultNow()
     .notNull(),
   code: varchar("code", { length: 256 }).unique(),
-  name: varchar("name"),
+  name: varchar("name").notNull(),
   nameEn: varchar("name_en", { length: 256 }),
   fullName: varchar("full_name", { length: 256 }),
   fullNameEn: varchar("full_name_en", { length: 256 }),
@@ -129,3 +142,10 @@ export const wardTable = pgTable("ward", {
     () => districtTable.code
   ),
 });
+
+export const wardRelation = relations(wardTable, ({ one }) => ({
+  district: one(districtTable, {
+    fields: [wardTable.districtCode],
+    references: [districtTable.code],
+  }),
+}));

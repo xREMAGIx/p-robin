@@ -20,6 +20,10 @@ const menuList = [
     href: "/province",
     label: "Province",
   },
+  {
+    href: "/district",
+    label: "District",
+  },
 ];
 
 export interface IProtectedRouteProps extends HTMLAttributes<HTMLDivElement> {}

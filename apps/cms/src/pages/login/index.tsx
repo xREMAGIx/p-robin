@@ -50,7 +50,7 @@ const Login: React.FunctionComponent = () => {
   if (authProfile) return <Navigate to="/" />;
 
   return (
-    <div className="login">
+    <div className="login w-screen h-screen flex justify-center items-center">
       <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
         <FormProvider {...methods}>
           <form
