@@ -1,21 +1,33 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-typebox";
 import Elysia, { Static, t } from "elysia";
-import { provinceTable } from "../db-schema";
+import { districtTable, provinceTable } from "../db-schema";
 import { metaPaginationSchema, queryPaginationSchema } from "./base";
 
 export const baseSelectProvinceSchema = createSelectSchema(provinceTable);
-
+const baseSelectDistrictSchema = createSelectSchema(districtTable);
 export const baseInsertProvinceSchema = createInsertSchema(provinceTable);
 
 export const listProvinceQuerySchema = t.Composite([
   queryPaginationSchema,
   t.Object({
     name: t.Optional(t.String()),
+    includes: t.Optional(
+      t.String({
+        description: "districts",
+      })
+    ),
+  }),
+]);
+
+export const provinceDataSchema = t.Composite([
+  baseSelectProvinceSchema,
+  t.Object({
+    districts: t.Optional(t.Array(baseSelectDistrictSchema)),
   }),
 ]);
 
 export const listProvincePagePaginationDataSchema = t.Object({
-  data: t.Array(baseSelectProvinceSchema),
+  data: t.Array(provinceDataSchema),
   meta: t.Pick(t.Required(metaPaginationSchema), [
     "limit",
     "page",
@@ -25,7 +37,7 @@ export const listProvincePagePaginationDataSchema = t.Object({
 });
 
 export const listProvinceOffsetPaginationDataSchema = t.Object({
-  data: t.Array(baseSelectProvinceSchema),
+  data: t.Array(provinceDataSchema),
   meta: t.Pick(t.Required(metaPaginationSchema), [
     "limit",
     "offset",
@@ -33,8 +45,16 @@ export const listProvinceOffsetPaginationDataSchema = t.Object({
   ]),
 });
 
+export const detailProvinceQueryParamSchema = t.Object({
+  includes: t.Optional(
+    t.String({
+      description: "districts",
+    })
+  ),
+});
+
 export const detailProvinceDataSchema = t.Object({
-  data: baseSelectProvinceSchema,
+  data: provinceDataSchema,
 });
 
 export const createProvinceParamSchema = t.Composite([
@@ -71,7 +91,7 @@ export type GetListProvinceParams = Static<typeof listProvinceQuerySchema> & {
 
 export type GetDetailProvinceParams = {
   id: number;
-};
+} & Static<typeof detailProvinceQueryParamSchema>;
 
 export type CreateProvinceParams = Static<typeof createProvinceParamSchema>;
 export type UpdateProvinceParams = Static<typeof updateProvinceParamSchema> & {

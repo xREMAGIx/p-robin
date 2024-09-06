@@ -1,10 +1,11 @@
-import { SQLWrapper, and, asc, count, desc, eq, sql } from "drizzle-orm";
+import { SQLWrapper, and, asc, count, desc, eq, or, sql } from "drizzle-orm";
 import { DBType } from "../config/database";
 import { districtTable } from "../db-schema";
 import { WithAuthenParams } from "../models/base";
 import {
   CreateDistrictParams,
   DeleteDistrictParams,
+  DeleteMultipleDistrictParams,
   GetDetailDistrictParams,
   GetListDistrictParams,
   UpdateDistrictParams,
@@ -23,6 +24,32 @@ export default class DistrictService {
     return result[0].count;
   }
 
+  getRelations(includes?: string) {
+    if (!includes) return undefined;
+
+    const RELATION_LIST = ["province", "wards"] as const;
+
+    const relations = includes.split(",").map((ele) => ele.trim());
+
+    let relationObj: object | undefined;
+
+    relations.forEach((relation) => {
+      const relationType = relation as (typeof RELATION_LIST)[number];
+      if (!RELATION_LIST.includes(relationType)) return;
+
+      switch (relationType) {
+        case "province":
+        case "wards":
+          relationObj = { ...(relationObj ?? {}), [relationType]: true };
+          break;
+        default:
+          break;
+      }
+    });
+
+    return relationObj;
+  }
+
   async getListPagePagination(params: GetListDistrictParams) {
     const {
       sortBy,
@@ -31,6 +58,7 @@ export default class DistrictService {
       page = 1,
       name,
       provinceCode,
+      includes,
     } = params;
 
     //* Filters
@@ -45,18 +73,19 @@ export default class DistrictService {
     if (provinceCode)
       filters.push(eq(districtTable.provinceCode, provinceCode));
 
+    const relations = this.getRelations(includes);
+
     //* Queries
-    const districtList = await this.db
-      .select()
-      .from(districtTable)
-      .where(and(...filters))
-      .limit(limit)
-      .offset(limit * (page - 1))
-      .orderBy(
+    const districtList = await this.db.query.districtTable.findMany({
+      where: and(...filters),
+      limit: limit,
+      offset: limit * (page - 1),
+      orderBy:
         sortOrder === "asc"
           ? asc(districtTable[sortBy ?? "createdAt"])
-          : desc(districtTable[sortBy ?? "createdAt"])
-      );
+          : desc(districtTable[sortBy ?? "createdAt"]),
+      with: relations,
+    });
 
     const totalQueryResult = await this.db
       .select({ count: count() })
@@ -86,6 +115,7 @@ export default class DistrictService {
       offset = 0,
       name,
       provinceCode,
+      includes,
     } = params;
 
     //* Filters
@@ -100,39 +130,26 @@ export default class DistrictService {
     if (provinceCode)
       filters.push(eq(districtTable.provinceCode, provinceCode));
 
+    const relations = this.getRelations(includes);
+
     //* Queries
-    const districtList = await this.db
-      .select()
-      .from(districtTable)
-      .where(and(...filters))
-      .limit(limit)
-      .offset(offset)
-      .orderBy(
+    const districtList = await this.db.query.districtTable.findMany({
+      where: and(...filters),
+      limit: limit + 1,
+      offset: offset,
+      orderBy:
         sortOrder === "asc"
           ? asc(districtTable[sortBy ?? "createdAt"])
-          : desc(districtTable[sortBy ?? "createdAt"])
-      );
+          : desc(districtTable[sortBy ?? "createdAt"]),
+      with: relations,
+    });
 
-    let hasMore = false;
-
-    if (districtList.length === limit) {
-      const totalQueryResult = await this.db
-        .select({ count: count() })
-        .from(districtTable)
-        .where(and(...filters));
-
-      const total = Number(totalQueryResult?.[0]?.count);
-
-      hasMore =
-        total > limit * (offset / limit) + districtList.length ? true : false;
-    } else {
-      hasMore = districtList.length > limit ? true : false;
-    }
+    let hasMore = districtList.length > limit;
 
     //* Results
 
     return {
-      districts: districtList,
+      districts: districtList.slice(0, limit),
       meta: {
         limit: limit,
         offset: offset,
@@ -142,10 +159,13 @@ export default class DistrictService {
   }
 
   async getDetail(params: GetDetailDistrictParams) {
-    const { id } = params;
+    const { id, includes } = params;
+
+    const relations = this.getRelations(includes);
 
     return await this.db.query.districtTable.findFirst({
       where: eq(districtTable.id, id),
+      with: relations,
     });
   }
 
@@ -186,5 +206,23 @@ export default class DistrictService {
       .returning({ id: districtTable.id });
 
     return results[0];
+  }
+
+  async multipleDelete(params: DeleteMultipleDistrictParams) {
+    const { ids } = params;
+    //* Filters
+    const filters: SQLWrapper[] = [];
+
+    ids.forEach((id) => {
+      filters.push(eq(districtTable.id, id));
+    });
+
+    //* Queries
+    const result = await this.db
+      .delete(districtTable)
+      .where(or(...filters))
+      .returning({ id: districtTable.id });
+
+    return result;
   }
 }

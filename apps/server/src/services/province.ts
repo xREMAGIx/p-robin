@@ -24,8 +24,33 @@ export default class ProvinceService {
     return result[0].count;
   }
 
+  getRelations(includes?: string) {
+    if (!includes) return undefined;
+
+    const RELATION_LIST = ["districts"] as const;
+
+    const relations = includes.split(",").map((ele) => ele.trim());
+
+    let relationObj: object | undefined;
+
+    relations.forEach((relation) => {
+      const relationType = relation as (typeof RELATION_LIST)[number];
+      if (!RELATION_LIST.includes(relationType)) return;
+
+      switch (relationType) {
+        case "districts":
+          relationObj = { ...(relationObj ?? {}), [relationType]: true };
+          break;
+        default:
+          break;
+      }
+    });
+
+    return relationObj;
+  }
+
   async getListPagePagination(params: GetListProvinceParams) {
-    const { sortBy, sortOrder, limit = 10, page = 1, name } = params;
+    const { sortBy, sortOrder, limit = 10, page = 1, name, includes } = params;
 
     //* Filters
     const filters: SQLWrapper[] = [];
@@ -37,18 +62,19 @@ export default class ProvinceService {
         )}%')`
       );
 
+    const relations = this.getRelations(includes);
+
     //* Queries
-    const provinceList = await this.db
-      .select()
-      .from(provinceTable)
-      .where(and(...filters))
-      .limit(limit)
-      .offset(limit * (page - 1))
-      .orderBy(
+    const provinceList = await this.db.query.provinceTable.findMany({
+      where: and(...filters),
+      limit: limit,
+      offset: limit * (page - 1),
+      orderBy:
         sortOrder === "asc"
           ? asc(provinceTable[sortBy ?? "createdAt"])
-          : desc(provinceTable[sortBy ?? "createdAt"])
-      );
+          : desc(provinceTable[sortBy ?? "createdAt"]),
+      with: relations,
+    });
 
     const totalQueryResult = await this.db
       .select({ count: count() })
@@ -71,7 +97,14 @@ export default class ProvinceService {
   }
 
   async getListOffsetPagination(params: GetListProvinceParams) {
-    const { sortBy, sortOrder, limit = 10, offset = 0, name } = params;
+    const {
+      sortBy,
+      sortOrder,
+      limit = 10,
+      offset = 0,
+      name,
+      includes,
+    } = params;
 
     //* Filters
     const filters: SQLWrapper[] = [];
@@ -83,38 +116,25 @@ export default class ProvinceService {
         )}%')`
       );
 
+    const relations = this.getRelations(includes);
+
     //* Queries
-    const provinceList = await this.db
-      .select()
-      .from(provinceTable)
-      .where(and(...filters))
-      .limit(limit)
-      .offset(offset)
-      .orderBy(
+    const provinceList = await this.db.query.provinceTable.findMany({
+      where: and(...filters),
+      limit: limit + 1,
+      offset: offset,
+      orderBy:
         sortOrder === "asc"
           ? asc(provinceTable[sortBy ?? "createdAt"])
-          : desc(provinceTable[sortBy ?? "createdAt"])
-      );
+          : desc(provinceTable[sortBy ?? "createdAt"]),
+      with: relations,
+    });
 
-    let hasMore = false;
-
-    if (provinceList.length === limit) {
-      const totalQueryResult = await this.db
-        .select({ count: count() })
-        .from(provinceTable)
-        .where(and(...filters));
-
-      const total = Number(totalQueryResult?.[0]?.count);
-
-      hasMore =
-        total > limit * (offset / limit) + provinceList.length ? true : false;
-    } else {
-      hasMore = provinceList.length > limit ? true : false;
-    }
+    let hasMore = provinceList.length > limit;
 
     //* Results
     return {
-      provinces: provinceList,
+      provinces: provinceList.slice(0, limit),
       meta: {
         limit: limit,
         offset: offset,
@@ -124,10 +144,13 @@ export default class ProvinceService {
   }
 
   async getDetail(params: GetDetailProvinceParams) {
-    const { id } = params;
+    const { id, includes } = params;
+
+    const relations = this.getRelations(includes);
 
     return await this.db.query.provinceTable.findFirst({
       where: eq(provinceTable.id, id),
+      with: relations,
     });
   }
 

@@ -6,6 +6,7 @@ import {
   createProvinceParamSchema,
   deleteProvinceDataSchema,
   detailProvinceDataSchema,
+  detailProvinceQueryParamSchema,
   listProvinceOffsetPaginationDataSchema,
   listProvincePagePaginationDataSchema,
   listProvinceQuerySchema,
@@ -163,8 +164,11 @@ export const provinceRoutes = new Elysia({
           //* Get detail
           .get(
             "/:id",
-            async ({ idParams, provinceService }) => {
-              const data = await provinceService.getDetail({ id: idParams });
+            async ({ idParams, provinceService, query: { ...queries } }) => {
+              const data = await provinceService.getDetail({
+                id: idParams,
+                ...queries,
+              });
 
               if (!data) {
                 throw new ApiError({
@@ -180,6 +184,7 @@ export const provinceRoutes = new Elysia({
               };
             },
             {
+              query: detailProvinceQueryParamSchema,
               response: {
                 200: detailProvinceDataSchema,
                 401: apiErrorSchema,

@@ -92,37 +92,21 @@ export default class ProductService {
     if (barcode) filters.push(like(productTable.barcode, barcode));
 
     //* Queries
-    const productList = await this.db
-      .select()
-      .from(productTable)
-      .where(and(...filters))
-      .limit(limit)
-      .offset(offset)
-      .orderBy(
+    const productList = await this.db.query.productTable.findMany({
+      where: and(...filters),
+      limit: limit + 1,
+      offset: offset,
+      orderBy:
         sortOrder === "asc"
           ? asc(productTable[sortBy ?? "createdAt"])
-          : desc(productTable[sortBy ?? "createdAt"])
-      );
+          : desc(productTable[sortBy ?? "createdAt"]),
+    });
 
-    let hasMore = false;
-
-    if (productList.length === limit) {
-      const totalQueryResult = await this.db
-        .select({ count: count() })
-        .from(productTable)
-        .where(and(...filters));
-
-      const total = Number(totalQueryResult?.[0]?.count);
-
-      hasMore =
-        total > limit * (offset / limit) + productList.length ? true : false;
-    } else {
-      hasMore = productList.length > limit ? true : false;
-    }
+    let hasMore = productList.length > limit;
 
     //* Results
     return {
-      products: productList,
+      products: productList.slice(0, limit),
       meta: {
         limit: limit,
         offset: offset,

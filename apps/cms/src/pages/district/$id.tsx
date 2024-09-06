@@ -1,7 +1,7 @@
 import { TOAST_SUCCESS_MESSAGE_CODE } from "@cms/config/constants";
 import { server } from "@cms/config/server";
-import { InfoForm, ProvinceInfoForm } from "@cms/containers/province/InfoForm";
-import { provinceQueryKeys } from "@cms/utils/query";
+import { InfoForm, DistrictInfoForm } from "@cms/containers/district/InfoForm";
+import { districtQueryKeys } from "@cms/utils/query";
 import React, { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -15,33 +15,33 @@ const breadcrumbs = [
     label: "Home",
   },
   {
-    href: "/province",
-    label: "Province",
+    href: "/district",
+    label: "District",
   },
   {
-    href: "/province/update",
+    href: "/district/update",
     label: "Update",
   },
 ];
 
-const ProvinceUpdate: React.FunctionComponent = () => {
+const DistrictUpdate: React.FunctionComponent = () => {
   //* Hooks
   const { id } = useParams<{ id: string }>();
 
-  const { t } = useTranslation(["common", "province"]);
+  const { t } = useTranslation(["common", "district"]);
 
   //* States
   const [isUpdating, setIsUpdating] = useState(false);
 
   //* Hook-form
-  const methods = useForm<ProvinceInfoForm>();
+  const methods = useForm<DistrictInfoForm>();
 
   //* Queries
   const { isFetching: isLoading } = useQuery({
-    queryKey: provinceQueryKeys.detail(id ?? ""),
+    queryKey: districtQueryKeys.detail(id ?? ""),
     queryFn: async () => {
       if (!id) return;
-      const { data, error } = await server.api["provinces"]({ id }).get({
+      const { data, error } = await server.api["districts"]({ id }).get({
         query: {},
       });
 
@@ -49,10 +49,10 @@ const ProvinceUpdate: React.FunctionComponent = () => {
         throw error.value;
       }
 
-      const province = data.data;
+      const district = data.data;
 
       methods.reset({
-        name: province.name,
+        name: district.name,
       });
 
       return data.data;
@@ -60,10 +60,10 @@ const ProvinceUpdate: React.FunctionComponent = () => {
   });
 
   //* Function
-  const handleUpdate = async (form: ProvinceInfoForm) => {
+  const handleUpdate = async (form: DistrictInfoForm) => {
     if (!id) return;
     setIsUpdating(true);
-    const { data, error } = await server.api["provinces"]({ id }).put({
+    const { data, error } = await server.api["districts"]({ id }).put({
       ...form,
     });
     setIsUpdating(false);
@@ -74,10 +74,10 @@ const ProvinceUpdate: React.FunctionComponent = () => {
       return;
     }
 
-    const province = data.data;
+    const district = data.data;
 
     methods.reset({
-      name: province.name,
+      name: district.name,
     });
 
     methods.reset();
@@ -92,7 +92,7 @@ const ProvinceUpdate: React.FunctionComponent = () => {
     );
 
   return (
-    <div className="p-provinceUpdate">
+    <div className="p-districtUpdate">
       <div className="breadcrumbs text-sm">
         <ul>
           {breadcrumbs.map((ele, idx) => (
@@ -104,7 +104,7 @@ const ProvinceUpdate: React.FunctionComponent = () => {
       </div>
       <div className="mt-4 flex justify-between items-center gap-1">
         <p className="font-bold text-lg capitalize">
-          {t("update_province", { ns: "province" })}
+          {t("update_district", { ns: "district" })}
         </p>
         <button
           disabled={isUpdating}
@@ -123,4 +123,4 @@ const ProvinceUpdate: React.FunctionComponent = () => {
   );
 };
 
-export default ProvinceUpdate;
+export default DistrictUpdate;
