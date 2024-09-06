@@ -1,0 +1,27 @@
+# https://moonrepo.dev/docs/config/template
+$schema: "https://moonrepo.dev/schemas/template.json"
+
+# REQUIRED: Name of the template in a human readable format.
+title: "CMS module"
+
+# REQUIRED: Description of what the template is for and other relevant information.
+description: |
+  Create cms module, includes: list (index.tsx), create (create.tsx), update ($id.tsx) page files and container files for these pages.
+  NOTE:
+  Before generate: 
+  - you should create module in server before create this cms module.
+  After generate:
+  - add module queryKeys const in query.ts
+  - add new menu link in menuList in ProtectedRoute.tsx
+  - update locale json files
+
+# Mapping of variables that will be interpolated and rendered within template files.
+# Users will be prompted to provide a value when running the generator.
+variables:
+  name:
+    type: "string"
+    default: ""
+    required: true
+    prompt: "Module name? (format: kebab-case)"
+
+destination: "apps/cms/src"

@@ -1,0 +1,45 @@
+{% set pasCalCaseName = name | pascal_case %}
+{% set camelCaseName = name | camel_case %}
+{% set kebabCaseName = name | kebab_case %}
+{% set snakeCaseName = name | snake_case %}
+
+import { ListTable } from "@cms/containers/{{kebabCaseName}}/ListTable";
+import React from "react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+
+const breadcrumbs = [
+{
+href: "/",
+label: "Home",
+},
+{
+href: "/{{kebabCaseName}}",
+label: "{{pasCalCaseName}}",
+},
+];
+
+const {{pasCalCaseName}}: React.FunctionComponent = () => {
+//* Hooks
+const { t } = useTranslation(["common", "{{kebabCaseName}}"]);
+
+return (
+<div className="p-{{kebabCaseName}}">
+    <div className="breadcrumbs text-sm">
+        <ul>
+            {breadcrumbs.map((ele, idx) => (
+            <li key={`breadcrumb-${idx}`}>
+                <Link to={ele.href}>{ele.label}</Link>
+            </li>
+            ))}
+        </ul>
+    </div>
+    <p className="mt-4 font-bold text-lg capitalize">
+        {t("list_{{snakeCaseName}}", { ns: "{{kebabCaseName}}" })}
+    </p>
+    <ListTable />
+</div>
+);
+};
+
+export default {{pasCalCaseName}};

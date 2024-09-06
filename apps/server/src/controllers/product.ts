@@ -193,10 +193,10 @@ export const productRoutes = new Elysia({
           }
         )
       )
-      //* Create
       .guard((innerApp) =>
         innerApp
           .use(authenticatePlugin)
+          //* Create
           .post(
             "/create",
             async ({ body, userId, productService }) => {

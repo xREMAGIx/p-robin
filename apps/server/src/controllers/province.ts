@@ -9,6 +9,8 @@ import {
   listProvinceOffsetPaginationDataSchema,
   listProvincePagePaginationDataSchema,
   listProvinceQuerySchema,
+  multipleDeleteProvinceDataSchema,
+  multipleDeleteProvinceParamSchema,
   provinceModel,
   updateProvinceParamSchema,
 } from "../models/province";
@@ -155,111 +157,137 @@ export const provinceRoutes = new Elysia({
           },
         }
       )
-      //* Create
       .guard((innerApp) =>
-        innerApp.use(authenticatePlugin).post(
-          "/create",
-          async ({ body, userId, provinceService }) => {
-            const data = await provinceService.create({ ...body, userId });
+        innerApp
+          .use(idValidatePlugin)
+          //* Get detail
+          .get(
+            "/:id",
+            async ({ idParams, provinceService }) => {
+              const data = await provinceService.getDetail({ id: idParams });
 
-            return {
-              data: data,
-            };
-          },
-          {
-            body: createProvinceParamSchema,
-            response: {
-              200: detailProvinceDataSchema,
-              401: apiErrorSchema,
-              422: apiErrorSchema,
-              500: apiErrorSchema,
+              if (!data) {
+                throw new ApiError({
+                  status: "404",
+                  errorCode: ERROR_CODES.NOT_FOUND_DATA,
+                  title: ERROR_CODES.NOT_FOUND_DATA,
+                  messageCode: "not_found_data",
+                });
+              }
+
+              return {
+                data,
+              };
             },
-            detail: {
-              summary: "Create Province",
+            {
+              response: {
+                200: detailProvinceDataSchema,
+                401: apiErrorSchema,
+                404: apiErrorSchema,
+                422: apiErrorSchema,
+                500: apiErrorSchema,
+              },
+              detail: {
+                summary: "Get Province Detail",
+              },
+            }
+          )
+      )
+      .guard((innerApp) =>
+        innerApp
+          .use(authenticatePlugin)
+          //* Create
+          .post(
+            "/create",
+            async ({ body, userId, provinceService }) => {
+              const data = await provinceService.create({ ...body, userId });
+
+              return {
+                data: data,
+              };
             },
-          }
-        )
-      )
+            {
+              body: createProvinceParamSchema,
+              response: {
+                200: detailProvinceDataSchema,
+                401: apiErrorSchema,
+                422: apiErrorSchema,
+                500: apiErrorSchema,
+              },
+              detail: {
+                summary: "Create Province",
+              },
+            }
+          )
+          .delete(
+            "/multiple-delete",
+            async ({ body, provinceService }) => {
+              const data = await provinceService.multipleDelete({ ...body });
 
-      .use(idValidatePlugin)
-      //* Get detail
-      .get(
-        "/:id",
-        async ({ idParams, provinceService }) => {
-          const data = await provinceService.getDetail({ id: idParams });
+              return {
+                data: data,
+              };
+            },
+            {
+              body: multipleDeleteProvinceParamSchema,
+              response: {
+                200: multipleDeleteProvinceDataSchema,
+                401: apiErrorSchema,
+                422: apiErrorSchema,
+                500: apiErrorSchema,
+              },
+              detail: {
+                summary: "Multiple Delete Product",
+              },
+            }
+          )
+          .use(idValidatePlugin)
+          //* Update
+          .put(
+            "/:id",
+            async ({ idParams, body, userId, provinceService }) => {
+              const data = await provinceService.update({
+                ...body,
+                userId,
+                id: idParams,
+              });
 
-          if (!data) {
-            throw new ApiError({
-              status: "404",
-              errorCode: ERROR_CODES.NOT_FOUND_DATA,
-              title: ERROR_CODES.NOT_FOUND_DATA,
-              messageCode: "not_found_data",
-            });
-          }
+              return {
+                data,
+              };
+            },
+            {
+              body: updateProvinceParamSchema,
+              response: {
+                200: detailProvinceDataSchema,
+                401: apiErrorSchema,
+                422: apiErrorSchema,
+                500: apiErrorSchema,
+              },
+              detail: {
+                summary: "Update Province",
+              },
+            }
+          )
+          //* Delete
+          .delete(
+            "/:id",
+            async ({ idParams, provinceService }) => {
+              const res = await provinceService.delete({ id: idParams });
 
-          return {
-            data,
-          };
-        },
-        {
-          response: {
-            200: detailProvinceDataSchema,
-            401: apiErrorSchema,
-            404: apiErrorSchema,
-            422: apiErrorSchema,
-            500: apiErrorSchema,
-          },
-          detail: {
-            summary: "Get Province Detail",
-          },
-        }
-      )
-      .use(authenticatePlugin)
-      //* Update
-      .put(
-        "/:id",
-        async ({ idParams, body, userId, provinceService }) => {
-          const data = await provinceService.update({
-            ...body,
-            userId,
-            id: idParams,
-          });
-
-          return {
-            data,
-          };
-        },
-        {
-          body: updateProvinceParamSchema,
-          response: {
-            200: detailProvinceDataSchema,
-            401: apiErrorSchema,
-            422: apiErrorSchema,
-            500: apiErrorSchema,
-          },
-          detail: {
-            summary: "Update Province",
-          },
-        }
-      )
-      //* Delete
-      .delete(
-        "/:id",
-        async ({ idParams, provinceService }) => {
-          const res = await provinceService.delete({ id: idParams });
-
-          return { data: res };
-        },
-        {
-          response: {
-            200: deleteProvinceDataSchema,
-            401: apiErrorSchema,
-            422: apiErrorSchema,
-            500: apiErrorSchema,
-          },
-          detail: {
-            summary: "Delete Province",
-          },
-        }
+              return { data: res };
+            },
+            {
+              response: {
+                200: deleteProvinceDataSchema,
+                401: apiErrorSchema,
+                422: apiErrorSchema,
+                500: apiErrorSchema,
+              },
+              detail: {
+                summary: "Delete Province",
+              },
+            }
+          )
       )
 );

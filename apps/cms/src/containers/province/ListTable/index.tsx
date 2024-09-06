@@ -4,9 +4,8 @@ import {
   DEFAULT_PAGINATION,
   TOAST_SUCCESS_MESSAGE_CODE,
 } from "@cms/config/constants";
-import { PRODUCT_STATUS, PRODUCT_STATUS_CODE } from "@cms/config/enums";
 import { server } from "@cms/config/server";
-import { productQueryKeys } from "@cms/utils/query";
+import { provinceQueryKeys } from "@cms/utils/query";
 import dayjs from "dayjs";
 import React, { useMemo, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
@@ -25,23 +24,6 @@ const headerData = [
     label: "Name",
   },
   {
-    id: "description",
-    label: "Description",
-  },
-  {
-    id: "barcode",
-    label: "Barcode",
-  },
-  {
-    id: "price",
-    label: "Price",
-    textAlign: "right",
-  },
-  {
-    id: "status",
-    label: "Status",
-  },
-  {
     id: "createdAt",
     label: "Created at",
   },
@@ -56,10 +38,6 @@ const searchOptions = [
     id: "name",
     label: "Name",
   },
-  {
-    id: "barcode",
-    label: "Barcode",
-  },
 ];
 
 type TableColKeys = (typeof headerData)[number]["id"];
@@ -69,13 +47,13 @@ type TableRowData = {
 };
 
 type SearchForm = {
-  type: "name" | "barcode";
+  type: "name";
   text: string;
 };
 
 export const ListTable: React.FunctionComponent = () => {
   //* Hooks
-  const { t } = useTranslation(["common", "product"]);
+  const { t } = useTranslation(["common", "province"]);
 
   //* States
   const [pagination, setPagination] = useState({
@@ -94,7 +72,7 @@ export const ListTable: React.FunctionComponent = () => {
   const methods = useForm<SearchForm>();
 
   //* Query
-  const fetchQueryKey = productQueryKeys.list({
+  const fetchQueryKey = provinceQueryKeys.list({
     page: pagination.page,
     search: search.text,
   });
@@ -111,7 +89,9 @@ export const ListTable: React.FunctionComponent = () => {
         ...searchKey(),
       };
 
-      const { data, error } = await server.api.products["page-pagination"].get({
+      const { data, error } = await server.api["provinces"][
+        "page-pagination"
+      ].get({
         query: query,
       });
 
@@ -130,31 +110,14 @@ export const ListTable: React.FunctionComponent = () => {
     },
   });
 
-  //* Memos
-  const productStatuses: { [key: string | number]: string } = useMemo(() => {
-    return Object.keys(PRODUCT_STATUS).reduce((prev, key) => {
-      return {
-        ...prev,
-        [PRODUCT_STATUS_CODE[key as keyof typeof PRODUCT_STATUS]]: t(
-          `product_${PRODUCT_STATUS[key as keyof typeof PRODUCT_STATUS]}`,
-          { ns: "product" }
-        ),
-      };
-    }, {});
-  }, [t]);
-
   const tableData: TableRowData[] = useMemo(() => {
     if (!data) return [];
 
     return data.map((ele) => ({
       id: ele.id,
       name: ele.name,
-      description: ele.description ?? "",
       createdAt: dayjs(ele.createdAt).format(DATE_TIME_FORMAT),
       updatedAt: dayjs(ele.updatedAt).format(DATE_TIME_FORMAT),
-      barcode: ele.barcode ?? "",
-      price: ele.price,
-      status: ele.status,
     }));
   }, [data]);
 
@@ -165,8 +128,6 @@ export const ListTable: React.FunctionComponent = () => {
     switch (search.type) {
       case "name":
         return { name: search.text };
-      case "barcode":
-        return { barcode: search.text };
       default:
         return;
     }
@@ -188,7 +149,7 @@ export const ListTable: React.FunctionComponent = () => {
   };
 
   const handleDelete = async () => {
-    const { error } = await server.api.products["multiple-delete"].delete({
+    const { error } = await server.api["provinces"]["multiple-delete"].delete({
       ids: selectedRow.map((ele) => parseInt(ele.id.toString(), 10)),
     });
 
@@ -219,7 +180,7 @@ export const ListTable: React.FunctionComponent = () => {
       <>
         <div className="mt-4 flex justify-between items-center gap-4">
           <div className=""></div>
-          <Link to={"/product/create"} className="btn btn-secondary">
+          <Link to={"/province/create"} className="btn btn-secondary">
             {t("create")}
           </Link>
         </div>
@@ -295,7 +256,7 @@ export const ListTable: React.FunctionComponent = () => {
             )}
           </div>
         </div>
-        <Link to={"/product/create"} className="btn btn-secondary">
+        <Link to={"/province/create"} className="btn btn-secondary">
           {t("create")}
         </Link>
       </div>
@@ -337,17 +298,9 @@ export const ListTable: React.FunctionComponent = () => {
                   if (col.id === "name") {
                     return (
                       <td key={`${ele.id}-${col.id}`}>
-                        <Link to={`/product/${ele.id}`}>
+                        <Link to={`/province/${ele.id}`}>
                           <p className="line-clamp-3">{ele[col.id]}</p>
                         </Link>
-                      </td>
-                    );
-                  }
-
-                  if (col.id === "status") {
-                    return (
-                      <td key={`${ele.id}-${col.id}`}>
-                        {productStatuses[ele[col.id]]}
                       </td>
                     );
                   }
