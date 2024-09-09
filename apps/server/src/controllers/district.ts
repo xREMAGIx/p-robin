@@ -158,137 +158,141 @@ export const districtRoutes = new Elysia({
           },
         }
       )
-      //* Create
+      //* Detail
       .guard((innerApp) =>
-        innerApp.use(authenticatePlugin).post(
-          "/create",
-          async ({ body, userId, districtService }) => {
-            const data = await districtService.create({ ...body, userId });
+        innerApp.use(idValidatePlugin).get(
+          "/:id",
+          async ({ idParams, districtService, query: { ...queries } }) => {
+            const data = await districtService.getDetail({
+              id: idParams,
+              ...queries,
+            });
+
+            if (!data) {
+              throw new ApiError({
+                status: "404",
+                errorCode: ERROR_CODES.NOT_FOUND_DATA,
+                title: ERROR_CODES.NOT_FOUND_DATA,
+                messageCode: "not_found_data",
+              });
+            }
 
             return {
-              data: data,
+              data,
             };
           },
           {
-            body: createDistrictParamSchema,
+            query: detailDistrictQueryParamSchema,
             response: {
               200: detailDistrictDataSchema,
               401: apiErrorSchema,
+              404: apiErrorSchema,
               422: apiErrorSchema,
               500: apiErrorSchema,
             },
             detail: {
-              summary: "Create District",
+              summary: "Get District Detail",
             },
           }
         )
       )
+      //* With authorized
+      .guard((innerApp) =>
+        innerApp
+          .use(authenticatePlugin)
+          //* Create
+          .post(
+            "/create",
+            async ({ body, userId, districtService }) => {
+              const data = await districtService.create({ ...body, userId });
 
-      .use(idValidatePlugin)
-      //* Get detail
-      .get(
-        "/:id",
-        async ({ idParams, districtService, query: { ...queries } }) => {
-          const data = await districtService.getDetail({
-            id: idParams,
-            ...queries,
-          });
+              return {
+                data: data,
+              };
+            },
+            {
+              body: createDistrictParamSchema,
+              response: {
+                200: detailDistrictDataSchema,
+                401: apiErrorSchema,
+                422: apiErrorSchema,
+                500: apiErrorSchema,
+              },
+              detail: {
+                summary: "Create District",
+              },
+            }
+          )
+          //* Multiple delete
+          .delete(
+            "/multiple-delete",
+            async ({ body, districtService }) => {
+              const data = await districtService.multipleDelete({ ...body });
 
-          if (!data) {
-            throw new ApiError({
-              status: "404",
-              errorCode: ERROR_CODES.NOT_FOUND_DATA,
-              title: ERROR_CODES.NOT_FOUND_DATA,
-              messageCode: "not_found_data",
-            });
-          }
+              return {
+                data: data,
+              };
+            },
+            {
+              body: multipleDeleteDistrictParamSchema,
+              response: {
+                200: multipleDeleteDistrictDataSchema,
+                401: apiErrorSchema,
+                422: apiErrorSchema,
+                500: apiErrorSchema,
+              },
+              detail: {
+                summary: "Multiple Delete District",
+              },
+            }
+          )
+          .use(idValidatePlugin)
+          //* Update
+          .put(
+            "/:id",
+            async ({ idParams, body, userId, districtService }) => {
+              const data = await districtService.update({
+                ...body,
+                userId,
+                id: idParams,
+              });
 
-          return {
-            data,
-          };
-        },
-        {
-          query: detailDistrictQueryParamSchema,
-          response: {
-            200: detailDistrictDataSchema,
-            401: apiErrorSchema,
-            404: apiErrorSchema,
-            422: apiErrorSchema,
-            500: apiErrorSchema,
-          },
-          detail: {
-            summary: "Get District Detail",
-          },
-        }
-      )
-      .delete(
-        "/multiple-delete",
-        async ({ body, districtService }) => {
-          const data = await districtService.multipleDelete({ ...body });
+              return {
+                data,
+              };
+            },
+            {
+              body: updateDistrictParamSchema,
+              response: {
+                200: detailDistrictDataSchema,
+                401: apiErrorSchema,
+                422: apiErrorSchema,
+                500: apiErrorSchema,
+              },
+              detail: {
+                summary: "Update District",
+              },
+            }
+          )
+          //* Delete
+          .delete(
+            "/:id",
+            async ({ idParams, districtService }) => {
+              const res = await districtService.delete({ id: idParams });
 
-          return {
-            data: data,
-          };
-        },
-        {
-          body: multipleDeleteDistrictParamSchema,
-          response: {
-            200: multipleDeleteDistrictDataSchema,
-            401: apiErrorSchema,
-            422: apiErrorSchema,
-            500: apiErrorSchema,
-          },
-          detail: {
-            summary: "Multiple Delete District",
-          },
-        }
-      )
-      .use(authenticatePlugin)
-      //* Update
-      .put(
-        "/:id",
-        async ({ idParams, body, userId, districtService }) => {
-          const data = await districtService.update({
-            ...body,
-            userId,
-            id: idParams,
-          });
-
-          return {
-            data,
-          };
-        },
-        {
-          body: updateDistrictParamSchema,
-          response: {
-            200: detailDistrictDataSchema,
-            401: apiErrorSchema,
-            422: apiErrorSchema,
-            500: apiErrorSchema,
-          },
-          detail: {
-            summary: "Update District",
-          },
-        }
-      )
-      //* Delete
-      .delete(
-        "/:id",
-        async ({ idParams, districtService }) => {
-          const res = await districtService.delete({ id: idParams });
-
-          return { data: res };
-        },
-        {
-          response: {
-            200: deleteDistrictDataSchema,
-            401: apiErrorSchema,
-            422: apiErrorSchema,
-            500: apiErrorSchema,
-          },
-          detail: {
-            summary: "Delete District",
-          },
-        }
+              return { data: res };
+            },
+            {
+              response: {
+                200: deleteDistrictDataSchema,
+                401: apiErrorSchema,
+                422: apiErrorSchema,
+                500: apiErrorSchema,
+              },
+              detail: {
+                summary: "Delete District",
+              },
+            }
+          )
       )
 );

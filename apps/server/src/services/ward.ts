@@ -14,6 +14,7 @@ import { wardTable } from "../db-schema";
 import { WithAuthenParams } from "../models/base";
 import {
   CreateWardParams,
+  DeleteMultipleWardParams,
   DeleteWardParams,
   GetDetailWardParams,
   GetListWardParams,
@@ -33,6 +34,31 @@ export default class WardService {
     return result[0].count;
   }
 
+  getRelations(includes?: string) {
+    if (!includes) return undefined;
+
+    const RELATION_LIST = ["district"] as const;
+
+    const relations = includes.split(",").map((ele) => ele.trim());
+
+    let relationObj: object | undefined;
+
+    relations.forEach((relation) => {
+      const relationType = relation as (typeof RELATION_LIST)[number];
+      if (!RELATION_LIST.includes(relationType)) return;
+
+      switch (relationType) {
+        case "district":
+          relationObj = { ...(relationObj ?? {}), [relationType]: true };
+          break;
+        default:
+          break;
+      }
+    });
+
+    return relationObj;
+  }
+
   async getListPagePagination(params: GetListWardParams) {
     const {
       sortBy,
@@ -41,6 +67,7 @@ export default class WardService {
       page = 1,
       name,
       districtCode,
+      includes,
     } = params;
 
     //* Filters
@@ -52,18 +79,19 @@ export default class WardService {
       );
     if (districtCode) filters.push(eq(wardTable.districtCode, districtCode));
 
+    const relations = this.getRelations(includes);
+
     //* Queries
-    const wardList = await this.db
-      .select()
-      .from(wardTable)
-      .where(and(...filters))
-      .limit(limit)
-      .offset(limit * (page - 1))
-      .orderBy(
+    const wardList = await this.db.query.wardTable.findMany({
+      where: and(...filters),
+      limit: limit,
+      offset: limit * (page - 1),
+      orderBy:
         sortOrder === "asc"
           ? asc(wardTable[sortBy ?? "createdAt"])
-          : desc(wardTable[sortBy ?? "createdAt"])
-      );
+          : desc(wardTable[sortBy ?? "createdAt"]),
+      with: relations,
+    });
 
     const totalQueryResult = await this.db
       .select({ count: count() })
@@ -93,6 +121,7 @@ export default class WardService {
       offset = 0,
       name,
       districtCode,
+      includes,
     } = params;
 
     //* Filters
@@ -104,38 +133,25 @@ export default class WardService {
       );
     if (districtCode) filters.push(eq(wardTable.districtCode, districtCode));
 
+    const relations = this.getRelations(includes);
+
     //* Queries
-    const wardList = await this.db
-      .select()
-      .from(wardTable)
-      .where(and(...filters))
-      .limit(limit)
-      .offset(offset)
-      .orderBy(
+    const wardList = await this.db.query.wardTable.findMany({
+      where: and(...filters),
+      limit: limit + 1,
+      offset: offset,
+      orderBy:
         sortOrder === "asc"
           ? asc(wardTable[sortBy ?? "createdAt"])
-          : desc(wardTable[sortBy ?? "createdAt"])
-      );
+          : desc(wardTable[sortBy ?? "createdAt"]),
+      with: relations,
+    });
 
-    let hasMore = false;
-
-    if (wardList.length === limit) {
-      const totalQueryResult = await this.db
-        .select({ count: count() })
-        .from(wardTable)
-        .where(and(...filters));
-
-      const total = Number(totalQueryResult?.[0]?.count);
-
-      hasMore =
-        total > limit * (offset / limit) + wardList.length ? true : false;
-    } else {
-      hasMore = wardList.length > limit ? true : false;
-    }
+    let hasMore = wardList.length > limit;
 
     //* Results
     return {
-      wards: wardList,
+      wards: wardList.slice(0, limit),
       meta: {
         limit: limit,
         offset: offset,
@@ -145,11 +161,16 @@ export default class WardService {
   }
 
   async getDetail(params: GetDetailWardParams) {
-    const { id } = params;
+    const { id, includes } = params;
 
-    return await this.db.query.wardTable.findFirst({
+    const relations = this.getRelations(includes);
+
+    const res = await this.db.query.wardTable.findFirst({
       where: eq(wardTable.id, id),
+      with: relations,
     });
+
+    return res;
   }
 
   async create(params: WithAuthenParams<CreateWardParams>) {
@@ -189,5 +210,23 @@ export default class WardService {
       .returning({ id: wardTable.id });
 
     return results[0];
+  }
+
+  async multipleDelete(params: DeleteMultipleWardParams) {
+    const { ids } = params;
+    //* Filters
+    const filters: SQLWrapper[] = [];
+
+    ids.forEach((id) => {
+      filters.push(eq(wardTable.id, id));
+    });
+
+    //* Queries
+    const result = await this.db
+      .delete(wardTable)
+      .where(or(...filters))
+      .returning({ id: wardTable.id });
+
+    return result;
   }
 }

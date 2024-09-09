@@ -9,6 +9,8 @@ import {
   listWardOffsetPaginationDataSchema,
   listWardPagePaginationDataSchema,
   listWardQuerySchema,
+  multipleDeleteWardDataSchema,
+  multipleDeleteWardParamSchema,
   updateWardParamSchema,
   wardModel,
 } from "../models/ward";
@@ -155,111 +157,140 @@ export const wardRoutes = new Elysia({
           },
         }
       )
-      //* Create
+      //* Detail
       .guard((innerApp) =>
-        innerApp.use(authenticatePlugin).post(
-          "/create",
-          async ({ body, userId, wardService }) => {
-            const data = await wardService.create({ ...body, userId });
+        innerApp.use(idValidatePlugin).get(
+          "/:id",
+          async ({ idParams, wardService, query: { ...queries } }) => {
+            const data = await wardService.getDetail({
+              id: idParams,
+              ...queries,
+            });
+
+            if (!data) {
+              throw new ApiError({
+                status: "404",
+                errorCode: ERROR_CODES.NOT_FOUND_DATA,
+                title: ERROR_CODES.NOT_FOUND_DATA,
+                messageCode: "not_found_data",
+              });
+            }
 
             return {
-              data: data,
+              data,
             };
           },
           {
-            body: createWardParamSchema,
             response: {
               200: detailWardDataSchema,
               401: apiErrorSchema,
+              404: apiErrorSchema,
               422: apiErrorSchema,
               500: apiErrorSchema,
             },
             detail: {
-              summary: "Create Ward",
+              summary: "Get Ward Detail",
             },
           }
         )
       )
+      //* With authorized
+      .guard((innerApp) =>
+        innerApp
+          .use(authenticatePlugin)
+          //* Create
+          .post(
+            "/create",
+            async ({ body, userId, wardService }) => {
+              const data = await wardService.create({ ...body, userId });
 
-      .use(idValidatePlugin)
-      //* Get detail
-      .get(
-        "/:id",
-        async ({ idParams, wardService }) => {
-          const data = await wardService.getDetail({ id: idParams });
+              return {
+                data: data,
+              };
+            },
+            {
+              body: createWardParamSchema,
+              response: {
+                200: detailWardDataSchema,
+                401: apiErrorSchema,
+                422: apiErrorSchema,
+                500: apiErrorSchema,
+              },
+              detail: {
+                summary: "Create Ward",
+              },
+            }
+          )
+          //* Multiple delete
+          .delete(
+            "/multiple-delete",
+            async ({ body, wardService }) => {
+              const data = await wardService.multipleDelete({ ...body });
 
-          if (!data) {
-            throw new ApiError({
-              status: "404",
-              errorCode: ERROR_CODES.NOT_FOUND_DATA,
-              title: ERROR_CODES.NOT_FOUND_DATA,
-              messageCode: "not_found_data",
-            });
-          }
+              return {
+                data: data,
+              };
+            },
+            {
+              body: multipleDeleteWardParamSchema,
+              response: {
+                200: multipleDeleteWardDataSchema,
+                401: apiErrorSchema,
+                422: apiErrorSchema,
+                500: apiErrorSchema,
+              },
+              detail: {
+                summary: "Multiple Delete Ward",
+              },
+            }
+          )
+          .use(idValidatePlugin)
+          //* Update
+          .put(
+            "/:id",
+            async ({ idParams, body, userId, wardService }) => {
+              const data = await wardService.update({
+                ...body,
+                userId,
+                id: idParams,
+              });
 
-          return {
-            data,
-          };
-        },
-        {
-          response: {
-            200: detailWardDataSchema,
-            401: apiErrorSchema,
-            404: apiErrorSchema,
-            422: apiErrorSchema,
-            500: apiErrorSchema,
-          },
-          detail: {
-            summary: "Get Ward Detail",
-          },
-        }
-      )
-      .use(authenticatePlugin)
-      //* Update
-      .put(
-        "/:id",
-        async ({ idParams, body, userId, wardService }) => {
-          const data = await wardService.update({
-            ...body,
-            userId,
-            id: idParams,
-          });
+              return {
+                data,
+              };
+            },
+            {
+              body: updateWardParamSchema,
+              response: {
+                200: detailWardDataSchema,
+                401: apiErrorSchema,
+                422: apiErrorSchema,
+                500: apiErrorSchema,
+              },
+              detail: {
+                summary: "Update Ward",
+              },
+            }
+          )
+          //* Delete
+          .delete(
+            "/:id",
+            async ({ idParams, wardService }) => {
+              const res = await wardService.delete({ id: idParams });
 
-          return {
-            data,
-          };
-        },
-        {
-          body: updateWardParamSchema,
-          response: {
-            200: detailWardDataSchema,
-            401: apiErrorSchema,
-            422: apiErrorSchema,
-            500: apiErrorSchema,
-          },
-          detail: {
-            summary: "Update Ward",
-          },
-        }
-      )
-      //* Delete
-      .delete(
-        "/:id",
-        async ({ idParams, wardService }) => {
-          const res = await wardService.delete({ id: idParams });
-
-          return { data: res };
-        },
-        {
-          response: {
-            200: deleteWardDataSchema,
-            401: apiErrorSchema,
-            422: apiErrorSchema,
-            500: apiErrorSchema,
-          },
-          detail: {
-            summary: "Delete Ward",
-          },
-        }
+              return { data: res };
+            },
+            {
+              response: {
+                200: deleteWardDataSchema,
+                401: apiErrorSchema,
+                422: apiErrorSchema,
+                500: apiErrorSchema,
+              },
+              detail: {
+                summary: "Delete Ward",
+              },
+            }
+          )
       )
 );

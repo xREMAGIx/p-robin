@@ -56,7 +56,7 @@ const methods = useForm<{{pasCalCaseName}}InfoForm>();
     };
 
     return (
-    <div className="p-productCreate">
+    <div className="p-{{camelCaseName}}Create">
         <div className="breadcrumbs text-sm">
             <ul>
                 {breadcrumbs.map((ele, idx) => (

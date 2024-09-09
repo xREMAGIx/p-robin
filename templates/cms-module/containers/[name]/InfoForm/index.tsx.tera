@@ -6,7 +6,7 @@
 import { FORM_VALIDATION_MESSAGE_CODE } from "@cms/config/constants";
 import cls from "classnames";
 import type { PropsWithChildren } from "react";
-import React, { useMemo, type HTMLAttributes } from "react";
+import React, { type HTMLAttributes } from "react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
