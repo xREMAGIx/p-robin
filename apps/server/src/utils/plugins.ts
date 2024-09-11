@@ -7,10 +7,11 @@ import AuthService from "../services/auth";
 import DistrictService from "../services/district";
 import ProductService from "../services/product";
 import ProvinceService from "../services/province";
+import WardService from "../services/ward";
+import WarehouseService from "../services/warehouse";
 import { TokenCookieHandler } from "./cookies";
 import * as HTTPError from "./errors";
 import { i18next } from "./translate";
-import WardService from "../services/ward";
 
 export const tokenPlugin = new Elysia({ name: "token-plugin" })
   .use(
@@ -188,5 +189,6 @@ export const servicesPlugin = new Elysia({ name: "services-plugin" })
       provinceService: new ProvinceService(db),
       districtService: new DistrictService(db),
       wardService: new WardService(db),
+      warehouseService: new WarehouseService(db),
     };
   });

@@ -50,7 +50,7 @@
 
 ## Warehouse
 
-- [ ] CRUD
+- [x] CRUD
 - [ ] Can check if there’s any goods receipt, goods issue has been pending, completed
 - [ ] Can update config inventory for each warehouse
 

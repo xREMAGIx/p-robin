@@ -1,0 +1,16 @@
+{% set pasCalCaseName = name | pascal_case %}
+{% set camelCaseName = name | camel_case %}
+{% set kebabCaseName = name | kebab_case %}
+{% set snakeCaseName = name | snake_case %}
+
+{
+"create_{{snakeCaseName}}": "create {{camelCaseName}}",
+"list_{{snakeCaseName}}": "list {{camelCaseName}}",
+"{{snakeCaseName}}_title": "{{camelCaseName}}",
+"{{snakeCaseName}}_name": "name",
+"{{snakeCaseName}}_list": "list",
+"{{snakeCaseName}}_create": "create",
+"{{snakeCaseName}}_detail": "detail",
+"{{snakeCaseName}}_update": "update",
+"{{snakeCaseName}}_delete": "delete"
+}

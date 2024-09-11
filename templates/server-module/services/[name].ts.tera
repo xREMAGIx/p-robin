@@ -182,7 +182,7 @@ async create(params: WithAuthenParams<Create{{pasCalCaseName}}Params>) {
     return results[0];
     }
 
-    async multipleDelete(params: DeleteMultipleProductParams) {
+    async multipleDelete(params: DeleteMultiple{{pasCalCaseName}}Params) {
     const { ids } = params;
     //* Filters
     const filters: SQLWrapper[] = [];
