@@ -1,11 +1,11 @@
-import { ListTable } from "@cms/containers/district/ListTable";
+import { ListTable } from "@cms/containers/ward/ListTable";
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-const District: React.FunctionComponent = () => {
+const Ward: React.FunctionComponent = () => {
   //* Hooks
-  const { t } = useTranslation(["common", "district"]);
+  const { t } = useTranslation(["common", "ward"]);
 
   //* Data
   const breadcrumbs = useMemo(() => {
@@ -15,14 +15,14 @@ const District: React.FunctionComponent = () => {
         label: t("home", { ns: "common" }),
       },
       {
-        href: "/district",
-        label: t("district_title", { ns: "district" }),
+        href: "/ward",
+        label: t("ward_title", { ns: "ward" }),
       },
     ];
   }, [t]);
 
   return (
-    <div className="p-district mb-6">
+    <div className="p-ward mb-6">
       <div className="breadcrumbs text-sm">
         <ul>
           {breadcrumbs.map((ele, idx) => (
@@ -33,11 +33,11 @@ const District: React.FunctionComponent = () => {
         </ul>
       </div>
       <p className="mt-4 font-bold text-lg capitalize">
-        {t("list_district", { ns: "district" })}
+        {t("list_ward", { ns: "ward" })}
       </p>
       <ListTable />
     </div>
   );
 };
 
-export default District;
+export default Ward;

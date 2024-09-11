@@ -1,0 +1,85 @@
+{% set pasCalCaseName = name | pascal_case %}
+{% set camelCaseName = name | camel_case %}
+{% set kebabCaseName = name | kebab_case %}
+{% set snakeCaseName = name | snake_case %}
+import { server } from "@cms/config/server";
+
+export type {{pasCalCaseName}}ListPagePaginationParams = NonNullable<Parameters<(typeof
+    server.api)["{{kebabCaseName}}s"]["page-pagination"]["get"]>
+    >[0];
+
+    export type {{pasCalCaseName}}ListOffsetPaginationParams = NonNullable<Parameters<(typeof
+        server.api)["{{kebabCaseName}}s"]["offset-pagination"]["get"]>
+        >[0];
+
+        export type {{pasCalCaseName}}CreateParams = NonNullable<Parameters<(typeof
+            server.api)["{{kebabCaseName}}s"]["create"]["post"]>
+            >[0];
+
+            export type {{pasCalCaseName}}IdPathParams = NonNullable<Parameters<(typeof
+                server.api)["{{kebabCaseName}}s"]>
+                >[0];
+
+                export type {{pasCalCaseName}}DetailParams = {{pasCalCaseName}}IdPathParams &
+                Parameters<NonNullable<ReturnType<(typeof server.api)["{{kebabCaseName}}s"]>>["get"]>[0];
+
+                    export type {{pasCalCaseName}}UpdateParams = {{pasCalCaseName}}IdPathParams &
+                    {{pasCalCaseName}}CreateParams;
+
+                    export type {{pasCalCaseName}}DeleteParams = {{pasCalCaseName}}IdPathParams;
+
+                    export type {{pasCalCaseName}}MultipleDeleteParams = NonNullable<Parameters<(typeof
+                        server.api)["{{kebabCaseName}}s"]["multiple-delete"]["delete"]>
+                        >[0];
+
+                        export type {{pasCalCaseName}}ListOffsetPaginationType = NonNullable< Awaited<ReturnType<typeof
+                            {{camelCaseName}}ListOffsetPaginationFetch>>["data"]
+                            >;
+                            export type {{pasCalCaseName}}DetailType = NonNullable< Awaited<ReturnType<typeof
+                                {{camelCaseName}}DetailFetch>
+                                >["data"]
+                                >;
+
+                                export const {{camelCaseName}}ListPagePaginationFetch = async (
+                                params: {{pasCalCaseName}}ListPagePaginationParams
+                                ) => {
+                                return await server.api["{{kebabCaseName}}s"]["page-pagination"].get(params);
+                                };
+
+                                export const {{camelCaseName}}ListOffsetPaginationFetch = async (
+                                params: {{pasCalCaseName}}ListOffsetPaginationParams
+                                ) => {
+                                return await server.api["{{kebabCaseName}}s"]["offset-pagination"].get(params);
+                                };
+
+                                export const {{camelCaseName}}DetailFetch = async (params:
+                                {{pasCalCaseName}}DetailParams) => {
+                                const { id, ...restParams } = params;
+                                return await server.api["{{kebabCaseName}}s"]({ id }).get(restParams);
+                                };
+
+                                export const {{camelCaseName}}Create = async (params: {{pasCalCaseName}}CreateParams) =>
+                                {
+                                return await server.api["{{kebabCaseName}}s"].create.post(params);
+                                };
+
+                                export const {{camelCaseName}}Update = async (params: {{pasCalCaseName}}UpdateParams) =>
+                                {
+                                const { id, ...restParams } = params;
+                                return await server.api["{{kebabCaseName}}s"]({ id }).put({
+                                ...restParams,
+                                });
+                                };
+
+                                export const {{camelCaseName}}Delete = async (params: {{pasCalCaseName}}DeleteParams) =>
+                                {
+                                const { id } = params;
+                                return await server.api["{{kebabCaseName}}s"]({ id }).delete();
+                                };
+
+                                export const {{camelCaseName}}MultipleDelete = async (params:
+                                {{pasCalCaseName}}MultipleDeleteParams)
+                                => {
+                                const { ids } = params;
+                                return await server.api["{{kebabCaseName}}s"]["multiple-delete"].delete({ ids });
+                                };

@@ -8,6 +8,7 @@ import {
   DeleteProvinceParams,
   GetDetailProvinceParams,
   GetListProvinceParams,
+  PROVINCE_RELATION_LIST,
   UpdateProvinceParams,
 } from "../models/province";
 
@@ -27,15 +28,13 @@ export default class ProvinceService {
   getRelations(includes?: string) {
     if (!includes) return undefined;
 
-    const RELATION_LIST = ["districts"] as const;
-
     const relations = includes.split(",").map((ele) => ele.trim());
 
     let relationObj: object | undefined;
 
     relations.forEach((relation) => {
-      const relationType = relation as (typeof RELATION_LIST)[number];
-      if (!RELATION_LIST.includes(relationType)) return;
+      const relationType = relation as (typeof PROVINCE_RELATION_LIST)[number];
+      if (!PROVINCE_RELATION_LIST.includes(relationType)) return;
 
       switch (relationType) {
         case "districts":
@@ -57,7 +56,7 @@ export default class ProvinceService {
 
     if (name)
       filters.push(
-        sql`unaccent(${provinceTable.name}) ilike unaccent('%${sql.raw(
+        sql`unaccent(${provinceTable.fullName}) ilike unaccent('%${sql.raw(
           name
         )}%')`
       );
@@ -111,7 +110,7 @@ export default class ProvinceService {
 
     if (name)
       filters.push(
-        sql`unaccent(${provinceTable.name}) ilike unaccent('%${sql.raw(
+        sql`unaccent(${provinceTable.fullName}) ilike unaccent('%${sql.raw(
           name
         )}%')`
       );

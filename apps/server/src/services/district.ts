@@ -4,6 +4,7 @@ import { districtTable } from "../db-schema";
 import { WithAuthenParams } from "../models/base";
 import {
   CreateDistrictParams,
+  DISTRICT_RELATION_LIST,
   DeleteDistrictParams,
   DeleteMultipleDistrictParams,
   GetDetailDistrictParams,
@@ -27,15 +28,13 @@ export default class DistrictService {
   getRelations(includes?: string) {
     if (!includes) return undefined;
 
-    const RELATION_LIST = ["province", "wards"] as const;
-
     const relations = includes.split(",").map((ele) => ele.trim());
 
     let relationObj: object | undefined;
 
     relations.forEach((relation) => {
-      const relationType = relation as (typeof RELATION_LIST)[number];
-      if (!RELATION_LIST.includes(relationType)) return;
+      const relationType = relation as (typeof DISTRICT_RELATION_LIST)[number];
+      if (!DISTRICT_RELATION_LIST.includes(relationType)) return;
 
       switch (relationType) {
         case "province":
@@ -66,7 +65,7 @@ export default class DistrictService {
 
     if (name)
       filters.push(
-        sql`unaccent(${districtTable.name}) ilike unaccent('%${sql.raw(
+        sql`unaccent(${districtTable.fullName}) ilike unaccent('%${sql.raw(
           name
         )}%')`
       );
@@ -123,7 +122,7 @@ export default class DistrictService {
 
     if (name)
       filters.push(
-        sql`unaccent(${districtTable.name}) ilike unaccent('%${sql.raw(
+        sql`unaccent(${districtTable.fullName}) ilike unaccent('%${sql.raw(
           name
         )}%')`
       );

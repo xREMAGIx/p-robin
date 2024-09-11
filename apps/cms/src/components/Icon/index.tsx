@@ -5,6 +5,8 @@ import menu from "/icons/ic-menu.svg";
 import userHexagon from "/icons/ic-user_hexagon.svg";
 import chevronRight from "/icons/ic-chevron_right.svg";
 import chevronLeft from "/icons/ic-chevron_left.svg";
+import chevronDown from "/icons/ic-chevron_down.svg";
+import chevronUp from "/icons/ic-chevron_up.svg";
 
 const iconList = {
   menu,
@@ -12,6 +14,8 @@ const iconList = {
   userHexagon,
   chevronRight,
   chevronLeft,
+  chevronDown,
+  chevronUp,
 };
 
 export type IconName = keyof typeof iconList;

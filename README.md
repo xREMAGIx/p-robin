@@ -84,7 +84,7 @@ All code generation templates are located in `templates` folder, to generate, ru
 moon generate <template_name>
 ```
 
-| Template                      | Description                                                                                                    |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `moon generate cms-module`    | Generate files in `pages`, `containers` includes simple code that execute CRUD function in cms project         |
-| `moon generate server-module` | Generate files in `controllers`, `models`, `services` includes simple code that execute CRUD in server project |
+| Template                      | Description                                                                                                        |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `moon generate cms-module`    | Generate files in `pages`, `containers`, `services` includes simple code that execute CRUD function in cms project |
+| `moon generate server-module` | Generate files in `controllers`, `models`, `services` includes simple code that execute CRUD in server project     |

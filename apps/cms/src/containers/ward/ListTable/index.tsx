@@ -5,10 +5,10 @@ import {
   TOAST_SUCCESS_MESSAGE_CODE,
 } from "@cms/config/constants";
 import {
-  districtListPagePaginationFetch,
-  districtMultipleDelete,
-} from "@cms/services/district";
-import { districtQueryKeys } from "@cms/utils/query";
+  wardListPagePaginationFetch,
+  wardMultipleDelete,
+} from "@cms/services/ward";
+import { wardQueryKeys } from "@cms/utils/query";
 import dayjs from "dayjs";
 import React, { useMemo, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
@@ -56,7 +56,7 @@ type SearchForm = {
 
 export const ListTable: React.FunctionComponent = () => {
   //* Hooks
-  const { t } = useTranslation(["common", "district"]);
+  const { t } = useTranslation(["common", "ward"]);
 
   //* States
   const [pagination, setPagination] = useState({
@@ -75,7 +75,7 @@ export const ListTable: React.FunctionComponent = () => {
   const methods = useForm<SearchForm>();
 
   //* Query
-  const fetchQueryKey = districtQueryKeys.list({
+  const fetchQueryKey = wardQueryKeys.list({
     page: pagination.page,
     search: search.text,
   });
@@ -92,7 +92,7 @@ export const ListTable: React.FunctionComponent = () => {
         ...searchKey(),
       };
 
-      const { data, error } = await districtListPagePaginationFetch({
+      const { data, error } = await wardListPagePaginationFetch({
         query: query,
       });
 
@@ -150,7 +150,7 @@ export const ListTable: React.FunctionComponent = () => {
   };
 
   const handleDelete = async () => {
-    const { error } = await districtMultipleDelete({
+    const { error } = await wardMultipleDelete({
       ids: selectedRow.map((ele) => parseInt(ele.id.toString(), 10)),
     });
 
@@ -181,7 +181,7 @@ export const ListTable: React.FunctionComponent = () => {
       <>
         <div className="mt-4 flex justify-between items-center gap-4">
           <div className=""></div>
-          <Link to={"/district/create"} className="btn btn-secondary">
+          <Link to={"/ward/create"} className="btn btn-secondary">
             {t("create")}
           </Link>
         </div>
@@ -257,7 +257,7 @@ export const ListTable: React.FunctionComponent = () => {
             )}
           </div>
         </div>
-        <Link to={"/district/create"} className="btn btn-secondary">
+        <Link to={"/ward/create"} className="btn btn-secondary">
           {t("create")}
         </Link>
       </div>
@@ -299,7 +299,7 @@ export const ListTable: React.FunctionComponent = () => {
                   if (col.id === "name") {
                     return (
                       <td key={`${ele.id}-${col.id}`}>
-                        <Link to={`/district/${ele.id}`}>
+                        <Link to={`/ward/${ele.id}`}>
                           <p className="line-clamp-3">{ele[col.id]}</p>
                         </Link>
                       </td>

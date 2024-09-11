@@ -15,6 +15,8 @@ export const Pagination: React.FunctionComponent<
   return (
     <div className={cls("pagination", className)}>
       <ReactPaginate
+        pageRangeDisplayed={1}
+        marginPagesDisplayed={1}
         {...props}
         breakLabel={<button className="join-item btn">...</button>}
         nextLabel={

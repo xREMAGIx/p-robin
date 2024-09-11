@@ -1,7 +1,7 @@
 import { TOAST_SUCCESS_MESSAGE_CODE } from "@cms/config/constants";
-import { InfoForm, ProvinceInfoForm } from "@cms/containers/province/InfoForm";
-import { provinceDetailFetch, provinceUpdate } from "@cms/services/province";
-import { provinceQueryKeys } from "@cms/utils/query";
+import { InfoForm, WardInfoForm } from "@cms/containers/ward/InfoForm";
+import { wardDetailFetch, wardUpdate } from "@cms/services/ward";
+import { wardQueryKeys } from "@cms/utils/query";
 import React, { useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -9,36 +9,38 @@ import { useTranslation } from "react-i18next";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
 
-const ProvinceUpdate: React.FunctionComponent = () => {
+const WardUpdate: React.FunctionComponent = () => {
   //* Hooks
   const { id } = useParams<{ id: string }>();
 
-  const { t } = useTranslation(["common", "province"]);
+  const { t } = useTranslation(["common", "ward"]);
 
   //* States
   const [isUpdating, setIsUpdating] = useState(false);
 
   //* Hook-form
-  const methods = useForm<ProvinceInfoForm>();
+  const methods = useForm<WardInfoForm>();
 
   //* Queries
   const { isFetching: isLoading } = useQuery({
-    queryKey: provinceQueryKeys.detail(id ?? ""),
+    queryKey: wardQueryKeys.detail(id ?? ""),
     queryFn: async () => {
       if (!id) return;
-      const { data, error } = await provinceDetailFetch({
+      const { data, error } = await wardDetailFetch({
         id,
-        query: {},
+        query: {
+          includes: "district-province",
+        },
       });
 
       if (error) {
         throw error.value;
       }
 
-      const province = data.data;
+      const ward = data.data;
 
       methods.reset({
-        ...province,
+        ...ward,
       });
 
       return data.data;
@@ -46,13 +48,17 @@ const ProvinceUpdate: React.FunctionComponent = () => {
   });
 
   //* Function
-  const handleUpdate = async (form: ProvinceInfoForm) => {
+  const handleUpdate = async (form: WardInfoForm) => {
     if (!id) return;
     setIsUpdating(true);
-    const { data, error } = await provinceUpdate({
+
+    const { district, ...params } = form;
+    const { data, error } = await wardUpdate({
       id,
-      ...form,
+      ...params,
+      districtCode: form.district?.code,
     });
+
     setIsUpdating(false);
 
     if (error) {
@@ -61,13 +67,14 @@ const ProvinceUpdate: React.FunctionComponent = () => {
       return;
     }
 
-    const province = data.data;
+    const ward = data.data;
 
     methods.reset({
-      ...province,
+      ...ward,
+      district,
     });
 
-    toast.success(t(TOAST_SUCCESS_MESSAGE_CODE.UPDATE));
+    toast.success(t(TOAST_SUCCESS_MESSAGE_CODE.CREATE));
   };
 
   //* Data
@@ -78,12 +85,12 @@ const ProvinceUpdate: React.FunctionComponent = () => {
         label: t("home", { ns: "common" }),
       },
       {
-        href: "/province",
-        label: t("province_title", { ns: "province" }),
+        href: "/ward",
+        label: t("ward_title", { ns: "ward" }),
       },
       {
-        href: "/province/update",
-        label: t("province_update", { ns: "province" }),
+        href: "/ward/update",
+        label: t("ward_update", { ns: "ward" }),
       },
     ];
   }, [t]);
@@ -96,7 +103,7 @@ const ProvinceUpdate: React.FunctionComponent = () => {
     );
 
   return (
-    <div className="p-provinceUpdate mb-6">
+    <div className="p-wardUpdate mb-6">
       <div className="breadcrumbs text-sm">
         <ul>
           {breadcrumbs.map((ele, idx) => (
@@ -108,7 +115,7 @@ const ProvinceUpdate: React.FunctionComponent = () => {
       </div>
       <div className="mt-4 flex justify-between items-center gap-1">
         <p className="font-bold text-lg capitalize">
-          {t("update_province", { ns: "province" })}
+          {t("ward_update", { ns: "ward" })}
         </p>
         <button
           disabled={isUpdating}
@@ -127,4 +134,4 @@ const ProvinceUpdate: React.FunctionComponent = () => {
   );
 };
 
-export default ProvinceUpdate;
+export default WardUpdate;

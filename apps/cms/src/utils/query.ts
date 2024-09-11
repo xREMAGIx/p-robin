@@ -5,6 +5,11 @@ type ListParams = {
   sortOrder?: string;
 };
 
+export const authQueryKeys = {
+  all: ["auth"] as const,
+  profile: () => [...authQueryKeys.all, "profile"] as const,
+};
+
 export const productQueryKeys = {
   all: ["product"] as const,
   lists: () => [...productQueryKeys.all, "list"] as const,
@@ -60,7 +65,17 @@ export const districtQueryKeys = {
   delete: () => [...districtQueryKeys.deletes()] as const,
 };
 
-export const authQueryKeys = {
-  all: ["auth"] as const,
-  profile: () => [...authQueryKeys.all, "profile"] as const,
+export const wardQueryKeys = {
+  all: ["ward"] as const,
+  lists: () => [...wardQueryKeys.all, "list"] as const,
+  list: ({ page, search, sortBy, sortOrder }: ListParams) =>
+    [...wardQueryKeys.lists(), { page, search, sortBy, sortOrder }] as const,
+  details: () => [...wardQueryKeys.all, "detail"] as const,
+  detail: (id: string | number) => [...wardQueryKeys.details(), id] as const,
+  creates: () => [...wardQueryKeys.all, "create"] as const,
+  create: () => [...wardQueryKeys.creates()] as const,
+  updates: () => [...wardQueryKeys.all, "update"] as const,
+  update: (id: string | number) => [...wardQueryKeys.updates(), id] as const,
+  deletes: () => [...wardQueryKeys.all, "delete"] as const,
+  delete: () => [...wardQueryKeys.deletes()] as const,
 };

@@ -7,16 +7,22 @@ export const baseSelectProvinceSchema = createSelectSchema(provinceTable);
 const baseSelectDistrictSchema = createSelectSchema(districtTable);
 export const baseInsertProvinceSchema = createInsertSchema(provinceTable);
 
+export const PROVINCE_RELATION_LIST = ["districts"] as const;
+
+export const provinceRelationSchema = t.Object({
+  includes: t.Optional(
+    t.Union([t.Literal("districts")], {
+      description: PROVINCE_RELATION_LIST.join(" | "),
+    })
+  ),
+});
+
 export const listProvinceQuerySchema = t.Composite([
   queryPaginationSchema,
   t.Object({
     name: t.Optional(t.String()),
-    includes: t.Optional(
-      t.String({
-        description: "districts",
-      })
-    ),
   }),
+  provinceRelationSchema,
 ]);
 
 export const provinceDataSchema = t.Composite([
@@ -45,13 +51,9 @@ export const listProvinceOffsetPaginationDataSchema = t.Object({
   ]),
 });
 
-export const detailProvinceQueryParamSchema = t.Object({
-  includes: t.Optional(
-    t.String({
-      description: "districts",
-    })
-  ),
-});
+export const detailProvinceQueryParamSchema = t.Composite([
+  provinceRelationSchema,
+]);
 
 export const detailProvinceDataSchema = t.Object({
   data: provinceDataSchema,

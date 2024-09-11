@@ -4,7 +4,10 @@ import {
   DEFAULT_PAGINATION,
   TOAST_SUCCESS_MESSAGE_CODE,
 } from "@cms/config/constants";
-import { server } from "@cms/config/server";
+import {
+  provinceListPagePaginationFetch,
+  provinceMultipleDelete,
+} from "@cms/services/province";
 import { provinceQueryKeys } from "@cms/utils/query";
 import dayjs from "dayjs";
 import React, { useMemo, useState } from "react";
@@ -17,19 +20,19 @@ import { Link } from "react-router-dom";
 const headerData = [
   {
     id: "id",
-    label: "ID",
+    labelTranslateKey: "id",
   },
   {
     id: "name",
-    label: "Name",
+    labelTranslateKey: "name",
   },
   {
     id: "createdAt",
-    label: "Created at",
+    labelTranslateKey: "created_at",
   },
   {
     id: "updatedAt",
-    label: "Updated at",
+    labelTranslateKey: "updated_at",
   },
 ] as const;
 
@@ -89,9 +92,7 @@ export const ListTable: React.FunctionComponent = () => {
         ...searchKey(),
       };
 
-      const { data, error } = await server.api["provinces"][
-        "page-pagination"
-      ].get({
+      const { data, error } = await provinceListPagePaginationFetch({
         query: query,
       });
 
@@ -149,7 +150,7 @@ export const ListTable: React.FunctionComponent = () => {
   };
 
   const handleDelete = async () => {
-    const { error } = await server.api["provinces"]["multiple-delete"].delete({
+    const { error } = await provinceMultipleDelete({
       ids: selectedRow.map((ele) => parseInt(ele.id.toString(), 10)),
     });
 
@@ -277,7 +278,7 @@ export const ListTable: React.FunctionComponent = () => {
                 </label>
               </th>
               {headerData.map((ele, idx) => (
-                <th key={`${ele.id}-${idx}`}>{ele.label}</th>
+                <th key={`${ele.id}-${idx}`}>{t(ele.labelTranslateKey)}</th>
               ))}
             </tr>
           </thead>

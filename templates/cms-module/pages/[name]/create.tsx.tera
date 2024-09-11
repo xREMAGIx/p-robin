@@ -4,28 +4,13 @@
 {% set snakeCaseName = name | snake_case %}
 
 import { TOAST_SUCCESS_MESSAGE_CODE } from "@cms/config/constants";
-import { server } from "@cms/config/server";
 import { InfoForm, {{pasCalCaseName}}InfoForm } from "@cms/containers/{{kebabCaseName}}/InfoForm";
+import { {{camelCaseName}}Create } from "@cms/services/{{kebabCaseName}}";
 import React, { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-
-const breadcrumbs = [
-{
-href: "/",
-label: "Home",
-},
-{
-href: "/{{kebabCaseName}}",
-label: "{{pasCalCaseName}}",
-},
-{
-href: "/{{kebabCaseName}}/create",
-label: "Create",
-},
-];
 
 const {{pasCalCaseName}}Create: React.FunctionComponent = () => {
 //* Hooks
@@ -40,7 +25,7 @@ const methods = useForm<{{pasCalCaseName}}InfoForm>();
     //* Function
     const handleCreate = async (form: {{pasCalCaseName}}InfoForm) => {
     setIsCreating(true);
-    const { error } = await server.api["{{kebabCaseName}}s"].create.post({
+    const { error } = await {{camelCaseName}}Create({
     ...form,
     });
     setIsCreating(false);
@@ -55,8 +40,26 @@ const methods = useForm<{{pasCalCaseName}}InfoForm>();
     toast.success(t(TOAST_SUCCESS_MESSAGE_CODE.CREATE));
     };
 
+    //* Data
+    const breadcrumbs = useMemo(() => {
+    return [
+    {
+    href: "/",
+    label: t("home", { ns: "common" }),
+    },
+    {
+    href: "/{{kebabCaseName}}",
+    label: t("{{snakeCaseName}}_title", { ns: "{{kebabCaseName}}" }),
+    },
+    {
+    href: "/{{kebabCaseName}}/create",
+    label: t("{{snakeCaseName}}_create", { ns: "{{kebabCaseName}}" }),
+    },
+    ];
+    }, [t]);
+
     return (
-    <div className="p-productCreate">
+    <div className="p-{{camelCaseName}}Create mb-6">
         <div className="breadcrumbs text-sm">
             <ul>
                 {breadcrumbs.map((ele, idx) => (
@@ -70,7 +73,7 @@ const methods = useForm<{{pasCalCaseName}}InfoForm>();
             <p className="font-bold text-lg capitalize">
                 {t("create_{{snakeCaseName}}", { ns: "{{kebabCaseName}}" })}
             </p>
-            <button disabled={isCreating} className="btn btn-primary capitalize" onClick={()=>
+            <button disabled={isCreating} className="btn btn-primary capitalize" onClick={ ()=>
                 methods.handleSubmit(handleCreate)()}
                 >
                 {t("create")}

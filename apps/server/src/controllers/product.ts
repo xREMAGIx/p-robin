@@ -159,7 +159,7 @@ export const productRoutes = new Elysia({
           },
         }
       )
-      //* Get detail
+      //* Detail
       .guard((innerApp) =>
         innerApp.use(idValidatePlugin).get(
           "/:id",
@@ -193,6 +193,7 @@ export const productRoutes = new Elysia({
           }
         )
       )
+      //* With authorized
       .guard((innerApp) =>
         innerApp
           .use(authenticatePlugin)
@@ -219,6 +220,7 @@ export const productRoutes = new Elysia({
               },
             }
           )
+          //* Multiple delete
           .delete(
             "/multiple-delete",
             async ({ body, productService }) => {
