@@ -66,7 +66,7 @@ export default class DistrictService {
 
     if (name)
       filters.push(
-        sql`unaccent(${districtTable.name}) ilike unaccent('%${sql.raw(
+        sql`unaccent(${districtTable.fullName}) ilike unaccent('%${sql.raw(
           name
         )}%')`
       );
@@ -123,7 +123,7 @@ export default class DistrictService {
 
     if (name)
       filters.push(
-        sql`unaccent(${districtTable.name}) ilike unaccent('%${sql.raw(
+        sql`unaccent(${districtTable.fullName}) ilike unaccent('%${sql.raw(
           name
         )}%')`
       );

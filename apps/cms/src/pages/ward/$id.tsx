@@ -2,27 +2,12 @@ import { TOAST_SUCCESS_MESSAGE_CODE } from "@cms/config/constants";
 import { InfoForm, WardInfoForm } from "@cms/containers/ward/InfoForm";
 import { wardDetailFetch, wardUpdate } from "@cms/services/ward";
 import { wardQueryKeys } from "@cms/utils/query";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
-
-const breadcrumbs = [
-  {
-    href: "/",
-    label: "Home",
-  },
-  {
-    href: "/ward",
-    label: "Ward",
-  },
-  {
-    href: "/ward/update",
-    label: "Update",
-  },
-];
 
 const WardUpdate: React.FunctionComponent = () => {
   //* Hooks
@@ -43,7 +28,9 @@ const WardUpdate: React.FunctionComponent = () => {
       if (!id) return;
       const { data, error } = await wardDetailFetch({
         id,
-        includes: "district",
+        query: {
+          includes: "district-province",
+        },
       });
 
       if (error) {
@@ -83,12 +70,30 @@ const WardUpdate: React.FunctionComponent = () => {
     const ward = data.data;
 
     methods.reset({
-      name: ward.name,
+      ...ward,
+      district,
     });
 
-    methods.reset();
     toast.success(t(TOAST_SUCCESS_MESSAGE_CODE.CREATE));
   };
+
+  //* Data
+  const breadcrumbs = useMemo(() => {
+    return [
+      {
+        href: "/",
+        label: "Home",
+      },
+      {
+        href: "/ward",
+        label: t("ward_title", { ns: "ward" }),
+      },
+      {
+        href: "/ward/update",
+        label: t("ward_update", { ns: "ward" }),
+      },
+    ];
+  }, [t]);
 
   if (isLoading)
     return (
@@ -98,7 +103,7 @@ const WardUpdate: React.FunctionComponent = () => {
     );
 
   return (
-    <div className="p-wardUpdate">
+    <div className="p-wardUpdate mb-6">
       <div className="breadcrumbs text-sm">
         <ul>
           {breadcrumbs.map((ele, idx) => (
@@ -110,7 +115,7 @@ const WardUpdate: React.FunctionComponent = () => {
       </div>
       <div className="mt-4 flex justify-between items-center gap-1">
         <p className="font-bold text-lg capitalize">
-          {t("update_ward", { ns: "ward" })}
+          {t("ward_update", { ns: "ward" })}
         </p>
         <button
           disabled={isUpdating}

@@ -57,7 +57,7 @@ export default class ProvinceService {
 
     if (name)
       filters.push(
-        sql`unaccent(${provinceTable.name}) ilike unaccent('%${sql.raw(
+        sql`unaccent(${provinceTable.fullName}) ilike unaccent('%${sql.raw(
           name
         )}%')`
       );
@@ -111,7 +111,7 @@ export default class ProvinceService {
 
     if (name)
       filters.push(
-        sql`unaccent(${provinceTable.name}) ilike unaccent('%${sql.raw(
+        sql`unaccent(${provinceTable.fullName}) ilike unaccent('%${sql.raw(
           name
         )}%')`
       );

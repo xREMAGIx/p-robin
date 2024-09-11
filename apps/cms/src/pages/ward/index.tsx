@@ -1,22 +1,25 @@
 import { ListTable } from "@cms/containers/ward/ListTable";
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-
-const breadcrumbs = [
-  {
-    href: "/",
-    label: "Home",
-  },
-  {
-    href: "/ward",
-    label: "Ward",
-  },
-];
 
 const Ward: React.FunctionComponent = () => {
   //* Hooks
   const { t } = useTranslation(["common", "ward"]);
+
+  //* Data
+  const breadcrumbs = useMemo(() => {
+    return [
+      {
+        href: "/",
+        label: "Home",
+      },
+      {
+        href: "/ward",
+        label: t("ward_title", { ns: "ward" }),
+      },
+    ];
+  }, [t]);
 
   return (
     <div className="p-ward">

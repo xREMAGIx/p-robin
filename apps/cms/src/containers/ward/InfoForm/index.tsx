@@ -1,5 +1,6 @@
 import { ComboBox } from "@cms/components/ComboBox";
 import { FORM_VALIDATION_MESSAGE_CODE } from "@cms/config/constants";
+import { useDebouncedValue } from "@cms/hooks/useDebounceValue";
 import {
   DistrictListOffsetPaginationType,
   districtListOffsetPaginationFetch,
@@ -30,7 +31,9 @@ export const InfoForm: React.FunctionComponent<
   //* Hooks
   const { t } = useTranslation(["common", "ward"]);
 
-  const [search, setSearch] = useState("");
+  const [districtSearchText, setDistrictSearchText] = useState("");
+
+  const [debounceDistrictSearch] = useDebouncedValue(districtSearchText, 300);
 
   //* Query
   const {
@@ -39,10 +42,14 @@ export const InfoForm: React.FunctionComponent<
     hasNextPage,
     fetchNextPage,
   } = useInfiniteQuery({
-    queryKey: districtQueryKeys.list({}),
+    queryKey: districtQueryKeys.list({ search: debounceDistrictSearch }),
     queryFn: async ({ pageParam = 0 }) => {
       const { data, error } = await districtListOffsetPaginationFetch({
-        offset: pageParam,
+        query: {
+          name: debounceDistrictSearch,
+          offset: pageParam,
+          includes: "province",
+        },
       });
 
       if (error) {
@@ -78,12 +85,16 @@ export const InfoForm: React.FunctionComponent<
           rules={{ required: t(FORM_VALIDATION_MESSAGE_CODE.REQUIRED) }}
           render={({ field, fieldState: { error } }) => (
             <>
-              <label className="input input-bordered flex items-center gap-2">
-                {t("ward_name", { ns: "ward" })}
+              <label className="mt-4 form-control w-full">
+                <div className="label">
+                  <span className="label-text capitalize">
+                    {t("ward_name", { ns: "ward" })}
+                  </span>
+                </div>
                 <input
                   {...field}
                   type="text"
-                  className="grow"
+                  className="input input-bordered w-full"
                   placeholder={t("ward_name", {
                     ns: "ward",
                   })}
@@ -101,12 +112,16 @@ export const InfoForm: React.FunctionComponent<
           rules={{ required: t(FORM_VALIDATION_MESSAGE_CODE.REQUIRED) }}
           render={({ field, fieldState: { error } }) => (
             <>
-              <label className="input input-bordered flex items-center gap-2">
-                {t("ward_code", { ns: "ward" })}
+              <label className="mt-4 form-control w-full">
+                <div className="label">
+                  <span className="label-text capitalize">
+                    {t("ward_code", { ns: "ward" })}
+                  </span>
+                </div>
                 <input
                   {...field}
                   type="text"
-                  className="grow"
+                  className="input input-bordered w-full"
                   placeholder={t("ward_code", {
                     ns: "ward",
                   })}
@@ -123,12 +138,16 @@ export const InfoForm: React.FunctionComponent<
           defaultValue={""}
           render={({ field, fieldState: { error } }) => (
             <>
-              <label className="input input-bordered flex items-center gap-2">
-                {t("ward_name_en", { ns: "ward" })}
+              <label className="mt-4 form-control w-full">
+                <div className="label">
+                  <span className="label-text capitalize">
+                    {t("ward_name_en", { ns: "ward" })}
+                  </span>
+                </div>
                 <input
                   {...field}
                   type="text"
-                  className="grow"
+                  className="input input-bordered w-full"
                   placeholder={t("ward_name_en", {
                     ns: "ward",
                   })}
@@ -145,12 +164,16 @@ export const InfoForm: React.FunctionComponent<
           defaultValue={""}
           render={({ field, fieldState: { error } }) => (
             <>
-              <label className="input input-bordered flex items-center gap-2">
-                {t("ward_full_name", { ns: "ward" })}
+              <label className="mt-4 form-control w-full">
+                <div className="label">
+                  <span className="label-text capitalize">
+                    {t("ward_full_name", { ns: "ward" })}
+                  </span>
+                </div>
                 <input
                   {...field}
                   type="text"
-                  className="grow"
+                  className="input input-bordered w-full"
                   placeholder={t("ward_full_name", {
                     ns: "ward",
                   })}
@@ -167,12 +190,16 @@ export const InfoForm: React.FunctionComponent<
           defaultValue={""}
           render={({ field, fieldState: { error } }) => (
             <>
-              <label className="input input-bordered flex items-center gap-2">
-                {t("ward_full_name_en", { ns: "ward" })}
+              <label className="mt-4 form-control w-full">
+                <div className="label">
+                  <span className="label-text capitalize">
+                    {t("ward_full_name_en", { ns: "ward" })}
+                  </span>
+                </div>
                 <input
                   {...field}
                   type="text"
-                  className="grow"
+                  className="input input-bordered w-full"
                   placeholder={t("ward_full_name_en", {
                     ns: "ward",
                   })}
@@ -189,12 +216,16 @@ export const InfoForm: React.FunctionComponent<
           defaultValue={""}
           render={({ field, fieldState: { error } }) => (
             <>
-              <label className="input input-bordered flex items-center gap-2">
-                {t("ward_code_name", { ns: "ward" })}
+              <label className="mt-4 form-control w-full">
+                <div className="label">
+                  <span className="label-text capitalize">
+                    {t("ward_code_name", { ns: "ward" })}
+                  </span>
+                </div>
                 <input
                   {...field}
                   type="text"
-                  className="grow"
+                  className="input input-bordered w-full"
                   placeholder={t("ward_code_name", {
                     ns: "ward",
                   })}
@@ -213,18 +244,26 @@ export const InfoForm: React.FunctionComponent<
             render={({ field: { value, onChange } }) => (
               <ComboBox
                 id="district"
-                label="District"
+                label={t("ward_district", { ns: "ward" })}
                 inputPlaceholder="Enter district name"
                 selectedItem={value}
                 setSelectedItem={onChange}
                 items={districtItems}
-                itemToString={(item) => item?.name ?? ""}
+                itemToString={(item) =>
+                  item
+                    ? `${item.fullName} - ${item.province?.fullName || ""}`
+                    : ""
+                }
                 itemRender={(item) => (
-                  <span className="text-inherit">{item.name}</span>
+                  <span className="text-inherit">
+                    {item.fullName} - {item.province?.fullName || ""}
+                  </span>
                 )}
+                onInputValueChange={(val) => setDistrictSearchText(val)}
                 hasNextPage={hasNextPage}
                 isLoadingMore={isFetchingNextPage}
                 handleLoadMore={fetchNextPage}
+                showListUpward
               />
             )}
           />

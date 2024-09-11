@@ -9,24 +9,38 @@ const baseSelectProvinceSchema = createSelectSchema(provinceTable);
 
 export const baseInsertWardSchema = createInsertSchema(wardTable);
 
+export const WARD_RELATION_LIST = ["district", "district-province"] as const;
+
+export const wardRelationSchema = t.Object({
+  includes: t.Optional(
+    t.Union([t.Literal("district"), t.Literal("district-province")], {
+      description: WARD_RELATION_LIST.join(" | "),
+    })
+  ),
+});
+
 export const listWardQuerySchema = t.Composite([
   queryPaginationSchema,
   t.Object({
     name: t.Optional(t.String()),
     districtCode: t.Optional(t.String()),
-    includes: t.Optional(
-      t.String({
-        description: "district | province",
-      })
-    ),
   }),
+  wardRelationSchema,
 ]);
 
 export const wardDataSchema = t.Composite([
   baseSelectWardSchema,
   t.Object({
-    district: t.Optional(t.Nullable(baseSelectDistrictSchema)),
-    province: t.Optional(t.Nullable(baseSelectProvinceSchema)),
+    district: t.Optional(
+      t.Nullable(
+        t.Composite([
+          baseSelectDistrictSchema,
+          t.Object({
+            province: t.Optional(t.Nullable(baseSelectProvinceSchema)),
+          }),
+        ])
+      )
+    ),
   }),
 ]);
 
@@ -49,13 +63,7 @@ export const listWardOffsetPaginationDataSchema = t.Object({
   ]),
 });
 
-export const detailWardQueryParamSchema = t.Object({
-  includes: t.Optional(
-    t.String({
-      description: "district",
-    })
-  ),
-});
+export const detailWardQueryParamSchema = t.Composite([wardRelationSchema]);
 
 export const detailWardDataSchema = t.Object({
   data: wardDataSchema,

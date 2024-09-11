@@ -19,6 +19,7 @@ import {
   GetDetailWardParams,
   GetListWardParams,
   UpdateWardParams,
+  WARD_RELATION_LIST,
 } from "../models/ward";
 
 export default class WardService {
@@ -37,19 +38,23 @@ export default class WardService {
   getRelations(includes?: string) {
     if (!includes) return undefined;
 
-    const RELATION_LIST = ["district"] as const;
-
     const relations = includes.split(",").map((ele) => ele.trim());
 
     let relationObj: object | undefined;
 
     relations.forEach((relation) => {
-      const relationType = relation as (typeof RELATION_LIST)[number];
-      if (!RELATION_LIST.includes(relationType)) return;
+      const relationType = relation as (typeof WARD_RELATION_LIST)[number];
+      if (!WARD_RELATION_LIST.includes(relationType)) return;
 
       switch (relationType) {
         case "district":
-          relationObj = { ...(relationObj ?? {}), [relationType]: true };
+          relationObj = { ...(relationObj ?? {}), ["district"]: true };
+          break;
+        case "district-province":
+          relationObj = {
+            ...(relationObj ?? {}),
+            ["district"]: { with: { ["province"]: true } },
+          };
           break;
         default:
           break;
@@ -75,7 +80,9 @@ export default class WardService {
 
     if (name)
       filters.push(
-        sql`unaccent(${wardTable.name}) ilike unaccent('%${sql.raw(name)}%')`
+        sql`unaccent(${wardTable.fullName}) ilike unaccent('%${sql.raw(
+          name
+        )}%')`
       );
     if (districtCode) filters.push(eq(wardTable.districtCode, districtCode));
 
@@ -129,7 +136,9 @@ export default class WardService {
 
     if (name)
       filters.push(
-        sql`unaccent(${wardTable.name}) ilike unaccent('%${sql.raw(name)}%')`
+        sql`unaccent(${wardTable.fullName}) ilike unaccent('%${sql.raw(
+          name
+        )}%')`
       );
     if (districtCode) filters.push(eq(wardTable.districtCode, districtCode));
 

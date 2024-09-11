@@ -17,6 +17,7 @@ interface ComboBoxProps<T> {
   hasNextPage?: boolean;
   handleLoadMore?: () => void;
   isLoadingMore?: boolean;
+  showListUpward?: boolean;
 }
 
 export const ComboBox = <T extends object>({
@@ -32,6 +33,7 @@ export const ComboBox = <T extends object>({
   hasNextPage,
   handleLoadMore,
   isLoadingMore,
+  showListUpward,
 }: PropsWithChildren<ComboBoxProps<T>>) => {
   const { ref: observerRef } = useIntersectionObserver({
     threshold: 0.5,
@@ -63,12 +65,14 @@ export const ComboBox = <T extends object>({
 
   return (
     <div>
-      <div className="flex flex-col gap-1">
-        {label && (
-          <label className="w-fit" {...getLabelProps()}>
-            {label}
-          </label>
-        )}
+      {label && (
+        <label className="w-fit" {...getLabelProps()}>
+          <div className="label">
+            <span className="label-text capitalize">{label}</span>
+          </div>
+        </label>
+      )}
+      <div className="relative">
         <div className="flex shadow-sm gap-0.5 join border border-base-content/20">
           <input
             placeholder={inputPlaceholder}
@@ -88,36 +92,37 @@ export const ComboBox = <T extends object>({
             )}
           </button>
         </div>
-      </div>
-      <ul
-        className={`absolute w-full mt-1 shadow-md max-h-80 overflow-scroll p-0 z-10 shadow ${
-          !(isOpen && items.length) && "hidden"
-        }`}
-        {...getMenuProps()}
-      >
-        {isOpen &&
-          items.map((item, index) => (
-            <li
-              className={cls(
-                highlightedIndex === index && "bg-secondary text-black",
-                selectedItem === item && "font-bold",
-                "py-2 px-3 shadow-sm flex flex-col",
-                "bg-base-100"
+        <ul
+          className={cls(
+            "absolute w-full mt-1 shadow-md max-h-80 overflow-scroll p-0 z-10 shadow",
+            { hidden: !(isOpen && items.length), "bottom-full": showListUpward }
+          )}
+          {...getMenuProps()}
+        >
+          {isOpen &&
+            items.map((item, index) => (
+              <li
+                className={cls(
+                  highlightedIndex === index && "bg-secondary text-black",
+                  selectedItem === item && "font-bold",
+                  "py-2 px-3 shadow-sm flex flex-col",
+                  "bg-base-100"
+                )}
+                key={`combobox-${id}-${index}`}
+                {...getItemProps({ item, index })}
+              >
+                {itemRender(item)}
+              </li>
+            ))}
+          {hasNextPage && (
+            <li ref={observerRef}>
+              {isLoadingMore && (
+                <span className="loading loading-bars loading-sm"></span>
               )}
-              key={`combobox-${id}-${index}`}
-              {...getItemProps({ item, index })}
-            >
-              {itemRender(item)}
             </li>
-          ))}
-        {hasNextPage && (
-          <li ref={observerRef}>
-            {isLoadingMore && (
-              <span className="loading loading-bars loading-sm"></span>
-            )}
-          </li>
-        )}
-      </ul>
+          )}
+        </ul>
+      </div>
     </div>
   );
 };

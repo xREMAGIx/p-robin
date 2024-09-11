@@ -1,0 +1,17 @@
+{
+  "create_ward": "create ward",
+  "list_ward": "list ward",
+  "ward_title": "ward",
+  "ward_name": "name",
+  "ward_code": "code",
+  "ward_name_en": "name en",
+  "ward_full_name": "full name",
+  "ward_full_name_en": "full name en",
+  "ward_code_name": "code name",
+  "ward_district": "district",
+  "ward_list": "list",
+  "ward_create": "create",
+  "ward_detail": "detail",
+  "ward_update": "update",
+  "ward_delete": "delete"
+}

@@ -1,6 +1,7 @@
 {
   "back": "Back",
   "create": "Create",
+  "update": "Update",
   "form_required": "Required",
   "message_login_success": "login success",
   "message_create_success": "create success"

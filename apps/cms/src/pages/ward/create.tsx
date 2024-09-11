@@ -1,26 +1,11 @@
 import { TOAST_SUCCESS_MESSAGE_CODE } from "@cms/config/constants";
 import { InfoForm, WardInfoForm } from "@cms/containers/ward/InfoForm";
 import { wardCreate } from "@cms/services/ward";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-
-const breadcrumbs = [
-  {
-    href: "/",
-    label: "Home",
-  },
-  {
-    href: "/ward",
-    label: "Ward",
-  },
-  {
-    href: "/ward/create",
-    label: "Create",
-  },
-];
 
 const WardCreate: React.FunctionComponent = () => {
   //* Hooks
@@ -51,6 +36,24 @@ const WardCreate: React.FunctionComponent = () => {
     methods.reset();
     toast.success(t(TOAST_SUCCESS_MESSAGE_CODE.CREATE));
   };
+
+  //* Data
+  const breadcrumbs = useMemo(() => {
+    return [
+      {
+        href: "/",
+        label: "Home",
+      },
+      {
+        href: "/ward",
+        label: t("ward_title", { ns: "ward" }),
+      },
+      {
+        href: "/ward/create",
+        label: t("ward_create", { ns: "ward" }),
+      },
+    ];
+  }, [t]);
 
   return (
     <div className="p-wardCreate">

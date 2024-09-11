@@ -6,6 +6,7 @@ import {
   createWardParamSchema,
   deleteWardDataSchema,
   detailWardDataSchema,
+  detailWardQueryParamSchema,
   listWardOffsetPaginationDataSchema,
   listWardPagePaginationDataSchema,
   listWardQuerySchema,
@@ -181,6 +182,7 @@ export const wardRoutes = new Elysia({
             };
           },
           {
+            query: detailWardQueryParamSchema,
             response: {
               200: detailWardDataSchema,
               401: apiErrorSchema,

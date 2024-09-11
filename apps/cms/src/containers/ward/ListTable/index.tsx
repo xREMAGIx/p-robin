@@ -4,7 +4,10 @@ import {
   DEFAULT_PAGINATION,
   TOAST_SUCCESS_MESSAGE_CODE,
 } from "@cms/config/constants";
-import { server } from "@cms/config/server";
+import {
+  wardListPagePaginationFetch,
+  wardMultipleDelete,
+} from "@cms/services/ward";
 import { wardQueryKeys } from "@cms/utils/query";
 import dayjs from "dayjs";
 import React, { useMemo, useState } from "react";
@@ -89,7 +92,7 @@ export const ListTable: React.FunctionComponent = () => {
         ...searchKey(),
       };
 
-      const { data, error } = await server.api["wards"]["page-pagination"].get({
+      const { data, error } = await wardListPagePaginationFetch({
         query: query,
       });
 
@@ -147,7 +150,7 @@ export const ListTable: React.FunctionComponent = () => {
   };
 
   const handleDelete = async () => {
-    const { error } = await server.api["wards"]["multiple-delete"].delete({
+    const { error } = await wardMultipleDelete({
       ids: selectedRow.map((ele) => parseInt(ele.id.toString(), 10)),
     });
 
