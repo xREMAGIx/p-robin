@@ -1,0 +1,11 @@
+{
+  "create_warehouse": "create warehouse",
+  "list_warehouse": "list warehouse",
+  "warehouse_title": "warehouse",
+  "warehouse_name": "name",
+  "warehouse_list": "list",
+  "warehouse_create": "create",
+  "warehouse_detail": "detail",
+  "warehouse_update": "update",
+  "warehouse_delete": "delete"
+}

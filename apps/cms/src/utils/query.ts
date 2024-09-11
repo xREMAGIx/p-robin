@@ -79,3 +79,23 @@ export const wardQueryKeys = {
   deletes: () => [...wardQueryKeys.all, "delete"] as const,
   delete: () => [...wardQueryKeys.deletes()] as const,
 };
+
+export const warehouseQueryKeys = {
+  all: ["warehouse"] as const,
+  lists: () => [...warehouseQueryKeys.all, "list"] as const,
+  list: ({ page, search, sortBy, sortOrder }: ListParams) =>
+    [
+      ...warehouseQueryKeys.lists(),
+      { page, search, sortBy, sortOrder },
+    ] as const,
+  details: () => [...warehouseQueryKeys.all, "detail"] as const,
+  detail: (id: string | number) =>
+    [...warehouseQueryKeys.details(), id] as const,
+  creates: () => [...warehouseQueryKeys.all, "create"] as const,
+  create: () => [...warehouseQueryKeys.creates()] as const,
+  updates: () => [...warehouseQueryKeys.all, "update"] as const,
+  update: (id: string | number) =>
+    [...warehouseQueryKeys.updates(), id] as const,
+  deletes: () => [...warehouseQueryKeys.all, "delete"] as const,
+  delete: () => [...warehouseQueryKeys.deletes()] as const,
+};

@@ -149,3 +149,14 @@ export const wardRelation = relations(wardTable, ({ one }) => ({
     references: [districtTable.code],
   }),
 }));
+
+export const warehouseTable = pgTable("warehouse", {
+  id: serial("id").primaryKey(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  name: varchar("name").notNull(),
+});
