@@ -12,9 +12,18 @@ export type DistrictCreateParams = NonNullable<
   Parameters<(typeof server.api)["districts"]["create"]["post"]>
 >[0];
 
-export type DistrictUpdateParams = DetailParams & DistrictCreateParams;
+export type DistrictIdPathParams = NonNullable<
+  Parameters<(typeof server.api)["districts"]>
+>[0];
 
-export type DistrictDeleteParams = DetailParams;
+export type DistrictDetailParams = DistrictIdPathParams &
+  Parameters<
+    NonNullable<ReturnType<(typeof server.api)["districts"]>>["get"]
+  >[0];
+
+export type DistrictUpdateParams = DistrictIdPathParams & DistrictCreateParams;
+
+export type DistrictDeleteParams = DistrictIdPathParams;
 
 export type DistrictMultipleDeleteParams = NonNullable<
   Parameters<(typeof server.api)["districts"]["multiple-delete"]["delete"]>
@@ -39,11 +48,9 @@ export const districtListOffsetPaginationFetch = async (
   return await server.api["districts"]["offset-pagination"].get(params);
 };
 
-export const districtDetailFetch = async (params: DetailParams) => {
-  const { id, includes } = params;
-  return await server.api["districts"]({ id }).get({
-    query: { includes },
-  });
+export const districtDetailFetch = async (params: DistrictDetailParams) => {
+  const { id, ...restParams } = params;
+  return await server.api["districts"]({ id }).get(restParams);
 };
 
 export const districtCreate = async (params: DistrictCreateParams) => {

@@ -1,26 +1,11 @@
 import { TOAST_SUCCESS_MESSAGE_CODE } from "@cms/config/constants";
-import { server } from "@cms/config/server";
 import { InfoForm, ProvinceInfoForm } from "@cms/containers/province/InfoForm";
-import React, { useState } from "react";
+import { provinceCreate } from "@cms/services/province";
+import React, { useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-
-const breadcrumbs = [
-  {
-    href: "/",
-    label: "Home",
-  },
-  {
-    href: "/province",
-    label: "Province",
-  },
-  {
-    href: "/province/create",
-    label: "Create",
-  },
-];
 
 const ProvinceCreate: React.FunctionComponent = () => {
   //* Hooks
@@ -35,7 +20,7 @@ const ProvinceCreate: React.FunctionComponent = () => {
   //* Function
   const handleCreate = async (form: ProvinceInfoForm) => {
     setIsCreating(true);
-    const { error } = await server.api["provinces"].create.post({
+    const { error } = await provinceCreate({
       ...form,
     });
     setIsCreating(false);
@@ -50,8 +35,26 @@ const ProvinceCreate: React.FunctionComponent = () => {
     toast.success(t(TOAST_SUCCESS_MESSAGE_CODE.CREATE));
   };
 
+  //* Data
+  const breadcrumbs = useMemo(() => {
+    return [
+      {
+        href: "/",
+        label: t("home", { ns: "common" }),
+      },
+      {
+        href: "/province",
+        label: t("province_title", { ns: "province" }),
+      },
+      {
+        href: "/province/create",
+        label: t("province_create", { ns: "province" }),
+      },
+    ];
+  }, [t]);
+
   return (
-    <div className="p-productCreate">
+    <div className="p-productCreate mb-6">
       <div className="breadcrumbs text-sm">
         <ul>
           {breadcrumbs.map((ele, idx) => (

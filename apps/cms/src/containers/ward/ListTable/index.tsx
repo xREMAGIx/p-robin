@@ -20,19 +20,19 @@ import { Link } from "react-router-dom";
 const headerData = [
   {
     id: "id",
-    label: "ID",
+    labelTranslateKey: "id",
   },
   {
     id: "name",
-    label: "Name",
+    labelTranslateKey: "name",
   },
   {
     id: "createdAt",
-    label: "Created at",
+    labelTranslateKey: "created_at",
   },
   {
     id: "updatedAt",
-    label: "Updated at",
+    labelTranslateKey: "updated_at",
   },
 ] as const;
 
@@ -278,7 +278,7 @@ export const ListTable: React.FunctionComponent = () => {
                 </label>
               </th>
               {headerData.map((ele, idx) => (
-                <th key={`${ele.id}-${idx}`}>{ele.label}</th>
+                <th key={`${ele.id}-${idx}`}>{t(ele.labelTranslateKey)}</th>
               ))}
             </tr>
           </thead>

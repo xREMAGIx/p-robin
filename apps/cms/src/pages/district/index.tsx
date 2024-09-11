@@ -1,25 +1,28 @@
 import { ListTable } from "@cms/containers/district/ListTable";
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-
-const breadcrumbs = [
-  {
-    href: "/",
-    label: "Home",
-  },
-  {
-    href: "/district",
-    label: "District",
-  },
-];
 
 const District: React.FunctionComponent = () => {
   //* Hooks
   const { t } = useTranslation(["common", "district"]);
 
+  //* Data
+  const breadcrumbs = useMemo(() => {
+    return [
+      {
+        href: "/",
+        label: t("home", { ns: "common" }),
+      },
+      {
+        href: "/district",
+        label: t("district_title", { ns: "district" }),
+      },
+    ];
+  }, [t]);
+
   return (
-    <div className="p-district">
+    <div className="p-district mb-6">
       <div className="breadcrumbs text-sm">
         <ul>
           {breadcrumbs.map((ele, idx) => (

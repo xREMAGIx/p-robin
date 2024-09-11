@@ -1,28 +1,13 @@
 import { TOAST_SUCCESS_MESSAGE_CODE } from "@cms/config/constants";
-import { server } from "@cms/config/server";
 import { InfoForm, ProvinceInfoForm } from "@cms/containers/province/InfoForm";
+import { provinceDetailFetch, provinceUpdate } from "@cms/services/province";
 import { provinceQueryKeys } from "@cms/utils/query";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
-
-const breadcrumbs = [
-  {
-    href: "/",
-    label: "Home",
-  },
-  {
-    href: "/province",
-    label: "Province",
-  },
-  {
-    href: "/province/update",
-    label: "Update",
-  },
-];
 
 const ProvinceUpdate: React.FunctionComponent = () => {
   //* Hooks
@@ -41,7 +26,8 @@ const ProvinceUpdate: React.FunctionComponent = () => {
     queryKey: provinceQueryKeys.detail(id ?? ""),
     queryFn: async () => {
       if (!id) return;
-      const { data, error } = await server.api["provinces"]({ id }).get({
+      const { data, error } = await provinceDetailFetch({
+        id,
         query: {},
       });
 
@@ -52,7 +38,7 @@ const ProvinceUpdate: React.FunctionComponent = () => {
       const province = data.data;
 
       methods.reset({
-        name: province.name,
+        ...province,
       });
 
       return data.data;
@@ -63,7 +49,8 @@ const ProvinceUpdate: React.FunctionComponent = () => {
   const handleUpdate = async (form: ProvinceInfoForm) => {
     if (!id) return;
     setIsUpdating(true);
-    const { data, error } = await server.api["provinces"]({ id }).put({
+    const { data, error } = await provinceUpdate({
+      id,
       ...form,
     });
     setIsUpdating(false);
@@ -77,12 +64,29 @@ const ProvinceUpdate: React.FunctionComponent = () => {
     const province = data.data;
 
     methods.reset({
-      name: province.name,
+      ...province,
     });
 
-    methods.reset();
-    toast.success(t(TOAST_SUCCESS_MESSAGE_CODE.CREATE));
+    toast.success(t(TOAST_SUCCESS_MESSAGE_CODE.UPDATE));
   };
+
+  //* Data
+  const breadcrumbs = useMemo(() => {
+    return [
+      {
+        href: "/",
+        label: t("home", { ns: "common" }),
+      },
+      {
+        href: "/province",
+        label: t("province_title", { ns: "province" }),
+      },
+      {
+        href: "/province/update",
+        label: t("province_update", { ns: "province" }),
+      },
+    ];
+  }, [t]);
 
   if (isLoading)
     return (
@@ -92,7 +96,7 @@ const ProvinceUpdate: React.FunctionComponent = () => {
     );
 
   return (
-    <div className="p-provinceUpdate">
+    <div className="p-provinceUpdate mb-6">
       <div className="breadcrumbs text-sm">
         <ul>
           {breadcrumbs.map((ele, idx) => (

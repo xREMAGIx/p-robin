@@ -8,7 +8,10 @@ DATE_TIME_FORMAT,
 DEFAULT_PAGINATION,
 TOAST_SUCCESS_MESSAGE_CODE,
 } from "@cms/config/constants";
-import { server } from "@cms/config/server";
+import {
+{{camelCaseName}}ListPagePaginationFetch,
+{{camelCaseName}}MultipleDelete,
+} from "@cms/services/{{kebabCaseName}}";
 import { {{camelCaseName}}QueryKeys } from "@cms/utils/query";
 import dayjs from "dayjs";
 import React, { useMemo, useState } from "react";
@@ -21,19 +24,19 @@ import { Link } from "react-router-dom";
 const headerData = [
 {
 id: "id",
-label: "ID",
+labelTranslateKey: "id",
 },
 {
 id: "name",
-label: "Name",
+labelTranslateKey: "name",
 },
 {
 id: "createdAt",
-label: "Created at",
+labelTranslateKey: "created_at",
 },
 {
 id: "updatedAt",
-label: "Updated at",
+labelTranslateKey: "updated_at",
 },
 ] as const;
 
@@ -93,7 +96,7 @@ const [selectedRow, setSelectedRow] = useState<TableRowData[]>([]);
             ...searchKey(),
             };
 
-            const { data, error } = await server.api["{{kebabCaseName}}s"]["page-pagination"].get({
+            const { data, error } = await {{camelCaseName}}ListPagePaginationFetch({
             query: query,
             });
 
@@ -151,7 +154,7 @@ const [selectedRow, setSelectedRow] = useState<TableRowData[]>([]);
                 };
 
                 const handleDelete = async () => {
-                const { error } = await server.api["{{kebabCaseName}}s"]["multiple-delete"].delete({
+                const { error } = await {{camelCaseName}}MultipleDelete({
                 ids: selectedRow.map((ele) => parseInt(ele.id.toString(), 10)),
                 });
 
@@ -255,7 +258,7 @@ const [selectedRow, setSelectedRow] = useState<TableRowData[]>([]);
                                         </label>
                                     </th>
                                     {headerData.map((ele, idx) => (
-                                    <th key={`${ele.id}-${idx}`}>{ele.label}</th>
+                                    <th key={`${ele.id}-${idx}`}>{t(ele.labelTranslateKey)}</th>
                                     ))}
                                 </tr>
                             </thead>

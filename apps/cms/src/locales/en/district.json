@@ -1,0 +1,17 @@
+{
+  "create_district": "create district",
+  "list_district": "list district",
+  "district_title": "district",
+  "district_name": "name",
+  "district_code": "code",
+  "district_name_en": "name en",
+  "district_full_name": "full name",
+  "district_full_name_en": "full name en",
+  "district_code_name": "code name",
+  "district_province": "province",
+  "district_list": "list",
+  "district_create": "create",
+  "district_detail": "detail",
+  "district_update": "update",
+  "district_delete": "delete"
+}

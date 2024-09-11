@@ -1,0 +1,16 @@
+{
+  "create_province": "create province",
+  "list_province": "list province",
+  "province_title": "province",
+  "province_name": "name",
+  "province_code": "code",
+  "province_name_en": "name en",
+  "province_full_name": "full name",
+  "province_full_name_en": "full name en",
+  "province_code_name": "code name",
+  "province_list": "list",
+  "province_create": "create",
+  "province_detail": "detail",
+  "province_update": "update",
+  "province_delete": "delete"
+}

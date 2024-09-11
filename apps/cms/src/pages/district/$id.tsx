@@ -1,28 +1,13 @@
 import { TOAST_SUCCESS_MESSAGE_CODE } from "@cms/config/constants";
-import { server } from "@cms/config/server";
-import { InfoForm, DistrictInfoForm } from "@cms/containers/district/InfoForm";
+import { DistrictInfoForm, InfoForm } from "@cms/containers/district/InfoForm";
+import { districtDetailFetch, districtUpdate } from "@cms/services/district";
 import { districtQueryKeys } from "@cms/utils/query";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
-
-const breadcrumbs = [
-  {
-    href: "/",
-    label: "Home",
-  },
-  {
-    href: "/district",
-    label: "District",
-  },
-  {
-    href: "/district/update",
-    label: "Update",
-  },
-];
 
 const DistrictUpdate: React.FunctionComponent = () => {
   //* Hooks
@@ -41,8 +26,11 @@ const DistrictUpdate: React.FunctionComponent = () => {
     queryKey: districtQueryKeys.detail(id ?? ""),
     queryFn: async () => {
       if (!id) return;
-      const { data, error } = await server.api["districts"]({ id }).get({
-        query: {},
+      const { data, error } = await districtDetailFetch({
+        id,
+        query: {
+          includes: "province",
+        },
       });
 
       if (error) {
@@ -52,7 +40,7 @@ const DistrictUpdate: React.FunctionComponent = () => {
       const district = data.data;
 
       methods.reset({
-        name: district.name,
+        ...district,
       });
 
       return data.data;
@@ -63,8 +51,12 @@ const DistrictUpdate: React.FunctionComponent = () => {
   const handleUpdate = async (form: DistrictInfoForm) => {
     if (!id) return;
     setIsUpdating(true);
-    const { data, error } = await server.api["districts"]({ id }).put({
-      ...form,
+    const { province, ...params } = form;
+
+    const { data, error } = await districtUpdate({
+      id,
+      ...params,
+      provinceCode: form.province?.code,
     });
     setIsUpdating(false);
 
@@ -77,12 +69,30 @@ const DistrictUpdate: React.FunctionComponent = () => {
     const district = data.data;
 
     methods.reset({
-      name: district.name,
+      ...district,
+      province,
     });
 
-    methods.reset();
-    toast.success(t(TOAST_SUCCESS_MESSAGE_CODE.CREATE));
+    toast.success(t(TOAST_SUCCESS_MESSAGE_CODE.UPDATE));
   };
+
+  //* Data
+  const breadcrumbs = useMemo(() => {
+    return [
+      {
+        href: "/",
+        label: t("home", { ns: "common" }),
+      },
+      {
+        href: "/district",
+        label: t("district_title", { ns: "district" }),
+      },
+      {
+        href: "/district/update",
+        label: t("district_update", { ns: "district" }),
+      },
+    ];
+  }, [t]);
 
   if (isLoading)
     return (
@@ -92,7 +102,7 @@ const DistrictUpdate: React.FunctionComponent = () => {
     );
 
   return (
-    <div className="p-districtUpdate">
+    <div className="p-districtUpdate mb-6">
       <div className="breadcrumbs text-sm">
         <ul>
           {breadcrumbs.map((ele, idx) => (

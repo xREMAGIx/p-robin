@@ -12,7 +12,7 @@ const Ward: React.FunctionComponent = () => {
     return [
       {
         href: "/",
-        label: "Home",
+        label: t("home", { ns: "common" }),
       },
       {
         href: "/ward",
@@ -22,7 +22,7 @@ const Ward: React.FunctionComponent = () => {
   }, [t]);
 
   return (
-    <div className="p-ward">
+    <div className="p-ward mb-6">
       <div className="breadcrumbs text-sm">
         <ul>
           {breadcrumbs.map((ele, idx) => (

@@ -82,7 +82,7 @@ const WardUpdate: React.FunctionComponent = () => {
     return [
       {
         href: "/",
-        label: "Home",
+        label: t("home", { ns: "common" }),
       },
       {
         href: "/ward",

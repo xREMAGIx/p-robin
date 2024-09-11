@@ -4,27 +4,30 @@
 {% set snakeCaseName = name | snake_case %}
 
 import { ListTable } from "@cms/containers/{{kebabCaseName}}/ListTable";
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-
-const breadcrumbs = [
-{
-href: "/",
-label: "Home",
-},
-{
-href: "/{{kebabCaseName}}",
-label: "{{pasCalCaseName}}",
-},
-];
 
 const {{pasCalCaseName}}: React.FunctionComponent = () => {
 //* Hooks
 const { t } = useTranslation(["common", "{{kebabCaseName}}"]);
 
+//* Data
+const breadcrumbs = useMemo(() => {
+return [
+{
+href: "/",
+label: t("home", { ns: "common" }),
+},
+{
+href: "/{{kebabCaseName}}",
+label: t("{{snakeCaseName}}_title", { ns: "{{kebabCaseName}}" }),
+},
+];
+}, [t]);
+
 return (
-<div className="p-{{kebabCaseName}}">
+<div className="p-{{kebabCaseName}} mb-6">
     <div className="breadcrumbs text-sm">
         <ul>
             {breadcrumbs.map((ele, idx) => (

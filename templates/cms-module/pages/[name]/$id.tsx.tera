@@ -4,30 +4,15 @@
 {% set snakeCaseName = name | snake_case %}
 
 import { TOAST_SUCCESS_MESSAGE_CODE } from "@cms/config/constants";
-import { server } from "@cms/config/server";
 import { InfoForm, {{pasCalCaseName}}InfoForm } from "@cms/containers/{{kebabCaseName}}/InfoForm";
+import { {{camelCaseName}}DetailFetch, {{camelCaseName}}Update } from "@cms/services/{{kebabCaseName}}";
 import { {{camelCaseName}}QueryKeys } from "@cms/utils/query";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
-
-const breadcrumbs = [
-{
-href: "/",
-label: "Home",
-},
-{
-href: "/{{kebabCaseName}}",
-label: "{{pasCalCaseName}}",
-},
-{
-href: "/{{kebabCaseName}}/update",
-label: "Update",
-},
-];
 
 const {{pasCalCaseName}}Update: React.FunctionComponent = () => {
 //* Hooks
@@ -46,7 +31,10 @@ const { id } = useParams<{ id: string }>();
         queryKey: {{camelCaseName}}QueryKeys.detail(id ?? ""),
         queryFn: async () => {
         if (!id) return;
-        const { data, error } = await server.api["{{kebabCaseName}}s"]({ id }).get();
+        const { data, error } = await {{camelCaseName}}DetailFetch({
+        id,
+        query: {},
+        });
 
         if (error) {
         throw error.value;
@@ -66,7 +54,8 @@ const { id } = useParams<{ id: string }>();
         const handleUpdate = async (form: {{pasCalCaseName}}InfoForm) => {
         if (!id) return;
         setIsUpdating(true);
-        const { data, error } = await server.api["{{kebabCaseName}}s"]({ id }).put({
+        const { data, error } = await {{camelCaseName}}Update({
+        id,
         ...form,
         });
         setIsUpdating(false);
@@ -83,9 +72,26 @@ const { id } = useParams<{ id: string }>();
         name: {{camelCaseName}}.name,
         });
 
-        methods.reset();
-        toast.success(t(TOAST_SUCCESS_MESSAGE_CODE.CREATE));
+        toast.success(t(TOAST_SUCCESS_MESSAGE_CODE.UPDATE));
         };
+
+        //* Data
+        const breadcrumbs = useMemo(() => {
+        return [
+        {
+        href: "/",
+        label: t("home", { ns: "common" }),
+        },
+        {
+        href: "/{{kebabCaseName}}",
+        label: t("{{snakeCaseName}}_title", { ns: "{{kebabCaseName}}" }),
+        },
+        {
+        href: "/{{kebabCaseName}}/update",
+        label: t("{{snakeCaseName}}_update", { ns: "{{kebabCaseName}}" }),
+        },
+        ];
+        }, [t]);
 
         if (isLoading)
         return (
@@ -95,7 +101,7 @@ const { id } = useParams<{ id: string }>();
         );
 
         return (
-        <div className="p-{{camelCaseName}}Update">
+        <div className="p-{{camelCaseName}}Update mb-6">
             <div className="breadcrumbs text-sm">
                 <ul>
                     {breadcrumbs.map((ele, idx) => (
