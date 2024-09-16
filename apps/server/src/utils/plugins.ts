@@ -5,6 +5,7 @@ import { AUTH_TOKENS, ERROR_CODES } from "../config/enums";
 import { queryPaginationModel } from "../models/base";
 import AuthService from "../services/auth";
 import DistrictService from "../services/district";
+import InventoryService from "../services/inventory";
 import ProductService from "../services/product";
 import ProvinceService from "../services/province";
 import WardService from "../services/ward";
@@ -190,5 +191,6 @@ export const servicesPlugin = new Elysia({ name: "services-plugin" })
       districtService: new DistrictService(db),
       wardService: new WardService(db),
       warehouseService: new WarehouseService(db),
+      inventoryService: new InventoryService(db),
     };
   });

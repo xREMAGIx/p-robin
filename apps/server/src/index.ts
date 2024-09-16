@@ -8,6 +8,7 @@ import { provinceRoutes } from "./controllers/province";
 import { wardRoutes } from "./controllers/ward";
 import { warehouseRoutes } from "./controllers/warehouse";
 import { errorPlugin } from "./utils/plugins";
+import { inventoryRoutes } from "./controllers/inventory";
 
 const app = new Elysia({ name: "root" })
   .use(
@@ -30,6 +31,7 @@ const app = new Elysia({ name: "root" })
   .use(districtRoutes)
   .use(wardRoutes)
   .use(warehouseRoutes)
+  .use(inventoryRoutes)
   .listen(9000);
 
 console.log(
