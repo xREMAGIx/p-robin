@@ -160,3 +160,23 @@ export const warehouseTable = pgTable("warehouse", {
     .notNull(),
   name: varchar("name").notNull(),
 });
+
+export const inventoryTable = pgTable("inventory", {
+  id: serial("id").primaryKey(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  productId: integer("product_id")
+    .references(() => productTable.id)
+    .notNull(),
+  warehouseId: integer("warehouse_id")
+    .references(() => warehouseTable.id)
+    .notNull(),
+  quantityAvailable: integer("quantity_available").default(0).notNull(),
+  minimumStockLevel: integer("minimum_stock_level").default(0).notNull(),
+  maximumStockLevel: integer("maximum_stock_level").default(0).notNull(),
+  reorderPoint: integer("reorder_point").default(0).notNull(),
+});
