@@ -2,19 +2,18 @@ import { Elysia } from "elysia";
 import { ERROR_CODES } from "../config/enums";
 import { apiErrorSchema } from "../models/base";
 import {
-  ProvinceData,
-  createProvinceParamSchema,
-  deleteProvinceDataSchema,
-  detailProvinceDataSchema,
-  detailProvinceQueryParamSchema,
-  listProvinceOffsetPaginationDataSchema,
-  listProvincePagePaginationDataSchema,
-  listProvinceQuerySchema,
-  multipleDeleteProvinceDataSchema,
-  multipleDeleteProvinceParamSchema,
-  provinceModel,
-  updateProvinceParamSchema,
-} from "../models/province";
+  GoodsReceiptData,
+  createGoodsReceiptParamSchema,
+  deleteGoodsReceiptDataSchema,
+  detailGoodsReceiptDataSchema,
+  goodsReceiptModel,
+  listGoodsReceiptOffsetPaginationDataSchema,
+  listGoodsReceiptPagePaginationDataSchema,
+  listGoodsReceiptQuerySchema,
+  multipleDeleteGoodsReceiptDataSchema,
+  multipleDeleteGoodsReceiptParamSchema,
+  updateGoodsReceiptParamSchema,
+} from "../models/goods-receipt";
 import { ApiError } from "../utils/errors";
 import {
   authenticatePlugin,
@@ -22,19 +21,19 @@ import {
   servicesPlugin,
 } from "../utils/plugins";
 
-export const provinceRoutes = new Elysia({
-  name: "province-controller",
+export const goodsReceiptRoutes = new Elysia({
+  name: "goods-receipt-controller",
 }).group(
-  `api/provinces`,
+  `api/goods-receipts`,
   {
     detail: {
-      tags: ["Province"],
+      tags: ["Goods Receipt"],
     },
   },
   (app) =>
     app
       .use(servicesPlugin)
-      .use(provinceModel)
+      .use(goodsReceiptModel)
       //* List
       .get(
         "/page-pagination",
@@ -46,11 +45,10 @@ export const provinceRoutes = new Elysia({
             page = 1,
             ...rest
           },
-          provinceService,
+          goodsReceiptService,
         }) => {
-          const sortBy = sortByParams as keyof ProvinceData;
-          const sortByList: (keyof ProvinceData)[] = [
-            "name",
+          const sortBy = sortByParams as keyof GoodsReceiptData;
+          const sortByList: (keyof GoodsReceiptData)[] = [
             "createdAt",
             "updatedAt",
           ];
@@ -72,7 +70,7 @@ export const provinceRoutes = new Elysia({
             });
           }
 
-          const res = await provinceService.getListPagePagination({
+          const res = await goodsReceiptService.getListPagePagination({
             sortBy: sortBy,
             sortOrder: sortOrder,
             limit: Number(limit),
@@ -81,19 +79,19 @@ export const provinceRoutes = new Elysia({
           });
 
           return {
-            data: res.provinces,
+            data: res.goodsReceipts,
             meta: res.meta,
           };
         },
         {
-          query: listProvinceQuerySchema,
+          query: listGoodsReceiptQuerySchema,
           response: {
-            200: listProvincePagePaginationDataSchema,
+            200: listGoodsReceiptPagePaginationDataSchema,
             422: apiErrorSchema,
             500: apiErrorSchema,
           },
           detail: {
-            summary: "Get Province List (page pagination)",
+            summary: "Get Goods Receipt List (page pagination)",
           },
         }
       )
@@ -107,11 +105,10 @@ export const provinceRoutes = new Elysia({
             offset = 0,
             ...rest
           },
-          provinceService,
+          goodsReceiptService,
         }) => {
-          const sortBy = sortByParams as keyof ProvinceData;
-          const sortByList: (keyof ProvinceData)[] = [
-            "name",
+          const sortBy = sortByParams as keyof GoodsReceiptData;
+          const sortByList: (keyof GoodsReceiptData)[] = [
             "createdAt",
             "updatedAt",
           ];
@@ -133,7 +130,7 @@ export const provinceRoutes = new Elysia({
             });
           }
 
-          const res = await provinceService.getListOffsetPagination({
+          const res = await goodsReceiptService.getListOffsetPagination({
             sortBy: sortBy,
             sortOrder: sortOrder,
             limit: Number(limit),
@@ -142,107 +139,109 @@ export const provinceRoutes = new Elysia({
           });
 
           return {
-            data: res.provinces,
+            data: res.goodsReceipts,
             meta: res.meta,
           };
         },
         {
-          query: listProvinceQuerySchema,
+          query: listGoodsReceiptQuerySchema,
           response: {
-            200: listProvinceOffsetPaginationDataSchema,
+            200: listGoodsReceiptOffsetPaginationDataSchema,
             422: apiErrorSchema,
             500: apiErrorSchema,
           },
           detail: {
-            summary: "Get Province List (offset pagination)",
+            summary: "Get Goods Receipt List (offset pagination)",
           },
         }
       )
+      //* Get detail
+      .guard((innerApp) =>
+        innerApp.use(idValidatePlugin).get(
+          "/:id",
+          async ({ idParams, goodsReceiptService, query: { ...queries } }) => {
+            const data = await goodsReceiptService.getDetail({
+              id: idParams,
+              ...queries,
+            });
+
+            if (!data) {
+              throw new ApiError({
+                status: "404",
+                errorCode: ERROR_CODES.NOT_FOUND_DATA,
+                title: ERROR_CODES.NOT_FOUND_DATA,
+                messageCode: "not_found_data",
+              });
+            }
+
+            return {
+              data,
+            };
+          },
+          {
+            response: {
+              200: detailGoodsReceiptDataSchema,
+              401: apiErrorSchema,
+              404: apiErrorSchema,
+              422: apiErrorSchema,
+              500: apiErrorSchema,
+            },
+            detail: {
+              summary: "Get Goods Receipt Detail",
+            },
+          }
+        )
+      )
+      //* Create
       .guard((innerApp) =>
         innerApp
-          .use(idValidatePlugin)
-          //* Get detail
-          .get(
-            "/:id",
-            async ({ idParams, provinceService, query: { ...queries } }) => {
-              const data = await provinceService.getDetail({
-                id: idParams,
-                ...queries,
+          .use(authenticatePlugin)
+          .post(
+            "/create",
+            async ({ body, userId, goodsReceiptService }) => {
+              const data = await goodsReceiptService.create({
+                ...body,
+                userId,
               });
-
-              if (!data) {
-                throw new ApiError({
-                  status: "404",
-                  errorCode: ERROR_CODES.NOT_FOUND_DATA,
-                  title: ERROR_CODES.NOT_FOUND_DATA,
-                  messageCode: "not_found_data",
-                });
-              }
 
               return {
                 data,
               };
             },
             {
-              query: detailProvinceQueryParamSchema,
+              body: createGoodsReceiptParamSchema,
               response: {
-                200: detailProvinceDataSchema,
-                401: apiErrorSchema,
-                404: apiErrorSchema,
-                422: apiErrorSchema,
-                500: apiErrorSchema,
-              },
-              detail: {
-                summary: "Get Province Detail",
-              },
-            }
-          )
-      )
-      .guard((innerApp) =>
-        innerApp
-          .use(authenticatePlugin)
-          //* Create
-          .post(
-            "/create",
-            async ({ body, userId, provinceService }) => {
-              const data = await provinceService.create({ ...body, userId });
-
-              return {
-                data: data,
-              };
-            },
-            {
-              body: createProvinceParamSchema,
-              response: {
-                200: detailProvinceDataSchema,
+                200: detailGoodsReceiptDataSchema,
                 401: apiErrorSchema,
                 422: apiErrorSchema,
                 500: apiErrorSchema,
               },
               detail: {
-                summary: "Create Province",
+                summary: "Create Goods Receipt",
               },
             }
           )
           .delete(
             "/multiple-delete",
-            async ({ body, provinceService }) => {
-              const data = await provinceService.multipleDelete({ ...body });
+            async ({ body, goodsReceiptService }) => {
+              const data = await goodsReceiptService.multipleDelete({
+                ...body,
+              });
 
               return {
                 data: data,
               };
             },
             {
-              body: multipleDeleteProvinceParamSchema,
+              body: multipleDeleteGoodsReceiptParamSchema,
               response: {
-                200: multipleDeleteProvinceDataSchema,
+                200: multipleDeleteGoodsReceiptDataSchema,
                 401: apiErrorSchema,
                 422: apiErrorSchema,
                 500: apiErrorSchema,
               },
               detail: {
-                summary: "Multiple Delete Province",
+                summary: "Multiple Delete Goods Receipt",
               },
             }
           )
@@ -250,8 +249,8 @@ export const provinceRoutes = new Elysia({
           //* Update
           .put(
             "/:id",
-            async ({ idParams, body, userId, provinceService }) => {
-              const data = await provinceService.update({
+            async ({ idParams, body, userId, goodsReceiptService }) => {
+              const data = await goodsReceiptService.update({
                 ...body,
                 userId,
                 id: idParams,
@@ -262,35 +261,35 @@ export const provinceRoutes = new Elysia({
               };
             },
             {
-              body: updateProvinceParamSchema,
+              body: updateGoodsReceiptParamSchema,
               response: {
-                200: detailProvinceDataSchema,
+                200: detailGoodsReceiptDataSchema,
                 401: apiErrorSchema,
                 422: apiErrorSchema,
                 500: apiErrorSchema,
               },
               detail: {
-                summary: "Update Province",
+                summary: "Update Goods Receipt",
               },
             }
           )
           //* Delete
           .delete(
             "/:id",
-            async ({ idParams, provinceService }) => {
-              const res = await provinceService.delete({ id: idParams });
+            async ({ idParams, goodsReceiptService }) => {
+              const res = await goodsReceiptService.delete({ id: idParams });
 
               return { data: res };
             },
             {
               response: {
-                200: deleteProvinceDataSchema,
+                200: deleteGoodsReceiptDataSchema,
                 401: apiErrorSchema,
                 422: apiErrorSchema,
                 500: apiErrorSchema,
               },
               detail: {
-                summary: "Delete Province",
+                summary: "Delete Goods Receipt",
               },
             }
           )

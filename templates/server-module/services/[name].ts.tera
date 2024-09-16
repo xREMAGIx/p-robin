@@ -2,6 +2,10 @@
 {% set camelCaseName = name | camel_case %}
 {% set kebabCaseName = name | kebab_case %}
 
+---
+to: services/{{ kebabCaseName }}.ts
+---
+
 import {
 SQLWrapper,
 and,
@@ -23,7 +27,7 @@ Delete{{pasCalCaseName}}Params,
 GetDetail{{pasCalCaseName}}Params,
 GetList{{pasCalCaseName}}Params,
 Update{{pasCalCaseName}}Params,
-} from "../models/{{camelCaseName}}";
+} from "../models/{{kebabCaseName}}";
 
 export default class {{pasCalCaseName}}Service {
 private db;

@@ -161,6 +161,11 @@ export const warehouseTable = pgTable("warehouse", {
   name: varchar("name").notNull(),
 });
 
+export const warehouseRelation = relations(warehouseTable, ({ many }) => ({
+  inventories: many(inventoryTable),
+  goodsReceipts: many(goodsReceiptTable),
+}));
+
 export const inventoryTable = pgTable("inventory", {
   id: serial("id").primaryKey(),
   createdAt: timestamp("created_at", { withTimezone: true })
@@ -180,3 +185,134 @@ export const inventoryTable = pgTable("inventory", {
   maximumStockLevel: integer("maximum_stock_level").default(0).notNull(),
   reorderPoint: integer("reorder_point").default(0).notNull(),
 });
+
+export const inventoryRelation = relations(inventoryTable, ({ one }) => ({
+  warehouse: one(warehouseTable, {
+    fields: [inventoryTable.warehouseId],
+    references: [warehouseTable.id],
+  }),
+}));
+
+export const goodsReceiptTable = pgTable("goods_receipt", {
+  id: serial("id").primaryKey(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  createdByUserId: integer("created_by_user_id")
+    .references(() => userTable.id)
+    .default(-1)
+    .notNull(),
+  updatedByUserId: integer("updated_by_user_id")
+    .references(() => userTable.id)
+    .default(-1)
+    .notNull(),
+  warehouseId: integer("warehouse_id")
+    .references(() => warehouseTable.id)
+    .notNull(),
+  status: integer("status").notNull(),
+});
+
+export const goodsReceiptRelation = relations(
+  goodsReceiptTable,
+  ({ one, many }) => ({
+    warehouse: one(warehouseTable, {
+      fields: [goodsReceiptTable.warehouseId],
+      references: [warehouseTable.id],
+    }),
+    detail: many(goodsReceiptDetailTable),
+  })
+);
+
+export const goodsReceiptDetailTable = pgTable("goods_receipt_detail", {
+  id: serial("id").primaryKey(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  goodsReceiptId: integer("goods_receipt_id")
+    .references(() => goodsReceiptTable.id)
+    .notNull(),
+  productId: integer("product_id")
+    .references(() => productTable.id)
+    .notNull(),
+  quantity: integer("quantity").default(0).notNull(),
+});
+
+export const goodsReceiptDetailRelation = relations(
+  goodsReceiptDetailTable,
+  ({ one }) => ({
+    product: one(productTable, {
+      fields: [goodsReceiptDetailTable.productId],
+      references: [productTable.id],
+    }),
+    goodsReceipt: one(goodsReceiptTable, {
+      fields: [goodsReceiptDetailTable.goodsReceiptId],
+      references: [goodsReceiptTable.id],
+    }),
+  })
+);
+
+export const goodsIssueTable = pgTable("goods_issue", {
+  id: serial("id").primaryKey(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  createdByUserId: integer("created_by_user_id")
+    .references(() => userTable.id)
+    .default(-1)
+    .notNull(),
+  updatedByUserId: integer("updated_by_user_id")
+    .references(() => userTable.id)
+    .default(-1)
+    .notNull(),
+  warehouseId: integer("warehouse_id")
+    .references(() => warehouseTable.id)
+    .notNull(),
+  status: integer("status").notNull(),
+});
+
+export const goodsIssueRelation = relations(
+  goodsIssueTable,
+  ({ one, many }) => ({
+    warehouse: one(warehouseTable, {
+      fields: [goodsIssueTable.warehouseId],
+      references: [warehouseTable.id],
+    }),
+    detail: many(goodsIssueDetailTable),
+  })
+);
+
+export const goodsIssueDetailTable = pgTable("goods_issue_detail", {
+  id: serial("id").primaryKey(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  goodsIssueId: integer("goods_issue_id")
+    .references(() => goodsIssueTable.id)
+    .notNull(),
+  productId: integer("product_id")
+    .references(() => productTable.id)
+    .notNull(),
+  quantity: integer("quantity").default(0).notNull(),
+});
+
+export const goodsIssueDetailRelation = relations(
+  goodsIssueDetailTable,
+  ({ one }) => ({
+    goodsIssue: one(goodsIssueTable, {
+      fields: [goodsIssueDetailTable.goodsIssueId],
+      references: [goodsIssueTable.id],
+    }),
+  })
+);

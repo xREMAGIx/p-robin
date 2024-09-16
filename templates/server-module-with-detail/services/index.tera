@@ -1,0 +1,266 @@
+{% set pasCalCaseName = name | pascal_case %}
+{% set camelCaseName = name | camel_case %}
+{% set kebabCaseName = name | kebab_case %}
+{% set upperSnakeCaseName = name | upper_snake_case %}
+
+---
+to: services/{{kebabCaseName}}.ts
+---
+
+import { SQLWrapper, and, asc, count, desc, eq, or, sql } from "drizzle-orm";
+import { DBType } from "../config/database";
+import { {{camelCaseName}}DetailTable, {{camelCaseName}}Table } from "../db-schema";
+import { WithAuthenParams } from "../models/base";
+import {
+  Create{{pasCalCaseName}}Params,
+  Delete{{pasCalCaseName}}Params,
+  DeleteMultiple{{pasCalCaseName}}Params,
+  {% if hasRelation %}
+  {{upperSnakeCaseName}}_RELATION_LIST,
+  {% endif %}
+  GetDetail{{pasCalCaseName}}Params,
+  GetList{{pasCalCaseName}}Params,
+  Update{{pasCalCaseName}}Params,
+} from "../models/{{kebabCaseName}}";
+
+export default class {{pasCalCaseName}}Service {
+  private db;
+
+  constructor(db: DBType) {
+    this.db = db;
+  }
+
+  async getTotal() {
+    const result = await this.db
+      .select({ count: count() })
+      .from({{camelCaseName}}Table);
+
+    return result[0].count;
+  }
+
+  {% if hasRelation %}
+  getRelations(includes?: string) {
+    if (!includes) return undefined;
+
+    const relations = includes.split(",").map((ele) => ele.trim());
+
+    let relationObj: object | undefined;
+
+    relations.forEach((relation) => {
+      const relationType =
+        relation as (typeof {{upperSnakeCaseName}}_RELATION_LIST)[number];
+      if (!{{upperSnakeCaseName}}_RELATION_LIST.includes(relationType)) return;
+
+      switch (relationType) {
+        case "detail":
+          relationObj = { ...(relationObj ?? {}), [relationType]: true };
+          break;
+        default:
+          break;
+      }
+    });
+
+    return relationObj;
+  }
+  {% endif %}
+  
+  async getListPagePagination(params: GetList{{pasCalCaseName}}Params) {
+    const {
+      sortBy,
+      sortOrder,
+      limit = 10,
+      offset = 0,
+      name,
+      {% if hasRelation %}
+      includes,
+      {% endif %}
+    } = params;
+
+    //* Filters
+    const filters: SQLWrapper[] = [];
+
+    if (name)
+      filters.push(
+        sql`unaccent(${ {{camelCaseName}}Table.name}) ilike unaccent('%${sql.raw(
+          name
+        )}%')`
+      );
+
+    {% if hasRelation %}
+    const relations = this.getRelations(includes);
+    {% endif %}
+    
+    //* Queries
+    const {{camelCaseName}}List = await this.db.query.{{camelCaseName}}Table.findMany({
+      where: and(...filters),
+      limit: limit,
+      offset: limit * (page - 1),
+      orderBy:
+        sortOrder === "asc"
+          ? asc({{camelCaseName}}Table[sortBy ?? "createdAt"])
+          : desc({{camelCaseName}}Table[sortBy ?? "createdAt"]),
+      {% if hasRelation %}
+      with: relations,
+      {% endif %}
+    });
+
+    const totalQueryResult = await this.db
+      .select({ count: count() })
+      .from({{camelCaseName}}Table)
+      .where(and(...filters));
+
+    //* Results
+    const total = Number(totalQueryResult?.[0]?.count);
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      {{camelCaseName}}s: {{camelCaseName}}List,
+      meta: {
+        limit: limit,
+        page: page,
+        total: total,
+        totalPages: totalPages,
+      },
+    };
+  }
+
+  async getListOffsetPagination(params: GetList{{pasCalCaseName}}Params) {
+    const {
+      sortBy,
+      sortOrder,
+      limit = 10,
+      offset = 0,
+      name,
+      {% if hasRelation %}
+      includes,
+      {% endif %}
+    } = params;
+
+    //* Filters
+    const filters: SQLWrapper[] = [];
+
+    if (name)
+      filters.push(
+        sql`unaccent(${ {{camelCaseName}}Table.name}) ilike unaccent('%${sql.raw(
+          name
+        )}%')`
+      );
+
+    {% if hasRelation %}
+    const relations = this.getRelations(includes);
+    {% endif %}
+
+    //* Queries
+    const {{camelCaseName}}List = await this.db.query.{{camelCaseName}}Table.findMany({
+      where: and(...filters),
+      limit: limit + 1,
+      offset: offset,
+      orderBy:
+        sortOrder === "asc"
+          ? asc({{camelCaseName}}Table[sortBy ?? "createdAt"])
+          : desc({{camelCaseName}}Table[sortBy ?? "createdAt"]),
+      {% if hasRelation %}
+      with: relations,
+      {% endif %}
+    });
+    let hasMore = {{camelCaseName}}List.length > limit;
+
+    //* Results
+
+    return {
+      {{camelCaseName}}s: {{camelCaseName}}List.slice(0, limit),
+      meta: {
+        limit: limit,
+        offset: offset,
+        hasMore: hasMore,
+      },
+    };
+  }
+
+  async getDetail(params: GetDetail{{pasCalCaseName}}Params) {
+    const {
+      id,
+      {% if hasRelation %}
+      includes,
+      {% endif %}
+    } = params;
+
+    {% if hasRelation %}
+    const relations = this.getRelations(includes);
+    {% endif %}
+
+    return await this.db.query.{{camelCaseName}}Table.findFirst({
+      where: eq({{camelCaseName}}Table.id, id),
+      {% if hasRelation %}
+      with: relations,
+      {% endif %}
+    });
+  }
+
+  async create(params: WithAuthenParams<Create{{pasCalCaseName}}Params>) {
+    const { userId, detail, ...body } = params;
+
+    const results = await this.db
+      .insert({{camelCaseName}}Table)
+      .values({
+        ...body,
+        createdByUserId: userId,
+        updatedByUserId: userId,
+      })
+      .returning();
+
+    await this.db.insert({{camelCaseName}}DetailTable).values(
+      detail.map((item) => ({
+        ...item,
+        {{camelCaseName}}Id: results[0].id,
+      }))
+    );
+
+    return results[0];
+  }
+
+  async update(params: WithAuthenParams<Update{{pasCalCaseName}}Params>) {
+    const { id, userId, ...rest } = params;
+
+    const results = await this.db
+      .update({{camelCaseName}}Table)
+      .set({
+        ...rest,
+        updatedAt: sql`now()`,
+        updatedByUserId: userId,
+      })
+      .where(eq({{camelCaseName}}Table.id, id))
+      .returning();
+
+    return results[0];
+  }
+
+  async delete(params: Delete{{pasCalCaseName}}Params) {
+    const { id } = params;
+
+    const results = await this.db
+      .delete({{camelCaseName}}Table)
+      .where(eq({{camelCaseName}}Table.id, id))
+      .returning({ id: {{camelCaseName}}Table.id });
+
+    return results[0];
+  }
+
+  async multipleDelete(params: DeleteMultiple{{pasCalCaseName}}Params) {
+    const { ids } = params;
+    //* Filters
+    const filters: SQLWrapper[] = [];
+
+    ids.forEach((id) => {
+      filters.push(eq({{camelCaseName}}Table.id, id));
+    });
+
+    //* Queries
+    const result = await this.db
+      .delete({{camelCaseName}}Table)
+      .where(or(...filters))
+      .returning({ id: {{camelCaseName}}Table.id });
+
+    return result;
+  }
+}
