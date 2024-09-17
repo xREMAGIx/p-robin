@@ -22,7 +22,7 @@ import {
   list{{pasCalCaseName}}QuerySchema,
   multipleDelete{{pasCalCaseName}}DataSchema,
   multipleDelete{{pasCalCaseName}}ParamSchema,
-  {{kebabCaseName}}Model,
+  {{camelCaseName}}Model,
   update{{pasCalCaseName}}ParamSchema,
 } from "../models/{{kebabCaseName}}";
 import { ApiError } from "../utils/errors";
@@ -44,7 +44,7 @@ export const {{camelCaseName}}Routes = new Elysia({
   (app) =>
     app
       .use(servicesPlugin)
-      .use({{kebabCaseName}}Model)
+      .use({{camelCaseName}}Model)
       //* List
       .get(
         "/page-pagination",
@@ -56,7 +56,7 @@ export const {{camelCaseName}}Routes = new Elysia({
             page = 1,
             ...rest
           },
-          {{kebabCaseName}}Service,
+          {{camelCaseName}}Service,
         }) => {
           const sortBy = sortByParams as keyof {{pasCalCaseName}}Data;
           const sortByList: (keyof {{pasCalCaseName}}Data)[] = [
@@ -82,7 +82,7 @@ export const {{camelCaseName}}Routes = new Elysia({
             });
           }
 
-          const res = await {{kebabCaseName}}Service.getListPagePagination({
+          const res = await {{camelCaseName}}Service.getListPagePagination({
             sortBy: sortBy,
             sortOrder: sortOrder,
             limit: Number(limit),
@@ -91,7 +91,7 @@ export const {{camelCaseName}}Routes = new Elysia({
           });
 
           return {
-            data: res.{{kebabCaseName}}s,
+            data: res.{{camelCaseName}}s,
             meta: res.meta,
           };
         },
@@ -117,7 +117,7 @@ export const {{camelCaseName}}Routes = new Elysia({
             offset = 0,
             ...rest
           },
-          {{kebabCaseName}}Service,
+          {{camelCaseName}}Service,
         }) => {
           const sortBy = sortByParams as keyof {{pasCalCaseName}}Data;
           const sortByList: (keyof {{pasCalCaseName}}Data)[] = [
@@ -143,7 +143,7 @@ export const {{camelCaseName}}Routes = new Elysia({
             });
           }
 
-          const res = await {{kebabCaseName}}Service.getListOffsetPagination({
+          const res = await {{camelCaseName}}Service.getListOffsetPagination({
             sortBy: sortBy,
             sortOrder: sortOrder,
             limit: Number(limit),
@@ -152,7 +152,7 @@ export const {{camelCaseName}}Routes = new Elysia({
           });
 
           return {
-            data: res.{{kebabCaseName}}s,
+            data: res.{{camelCaseName}}s,
             meta: res.meta,
           };
         },
@@ -174,8 +174,8 @@ export const {{camelCaseName}}Routes = new Elysia({
           //* Get detail
           .get(
             "/:id",
-            async ({ idParams, {{kebabCaseName}}Service, query: { ...queries } }) => {
-              const data = await {{kebabCaseName}}Service.getDetail({
+            async ({ idParams, {{camelCaseName}}Service, query: { ...queries } }) => {
+              const data = await {{camelCaseName}}Service.getDetail({
                 id: idParams,
                 ...queries,
               });
@@ -214,8 +214,8 @@ export const {{camelCaseName}}Routes = new Elysia({
           //* Create
           .post(
             "/create",
-            async ({ body, userId, {{kebabCaseName}}Service }) => {
-              const data = await {{kebabCaseName}}Service.create({ ...body, userId });
+            async ({ body, userId, {{camelCaseName}}Service }) => {
+              const data = await {{camelCaseName}}Service.create({ ...body, userId });
 
               return {
                 data: data,
@@ -236,8 +236,8 @@ export const {{camelCaseName}}Routes = new Elysia({
           )
           .delete(
             "/multiple-delete",
-            async ({ body, {{kebabCaseName}}Service }) => {
-              const data = await {{kebabCaseName}}Service.multipleDelete({ ...body });
+            async ({ body, {{camelCaseName}}Service }) => {
+              const data = await {{camelCaseName}}Service.multipleDelete({ ...body });
 
               return {
                 data: data,
@@ -260,8 +260,8 @@ export const {{camelCaseName}}Routes = new Elysia({
           //* Update
           .put(
             "/:id",
-            async ({ idParams, body, userId, {{kebabCaseName}}Service }) => {
-              const data = await {{kebabCaseName}}Service.update({
+            async ({ idParams, body, userId, {{camelCaseName}}Service }) => {
+              const data = await {{camelCaseName}}Service.update({
                 ...body,
                 userId,
                 id: idParams,
@@ -287,8 +287,8 @@ export const {{camelCaseName}}Routes = new Elysia({
           //* Delete
           .delete(
             "/:id",
-            async ({ idParams, {{kebabCaseName}}Service }) => {
-              const res = await {{kebabCaseName}}Service.delete({ id: idParams });
+            async ({ idParams, {{camelCaseName}}Service }) => {
+              const res = await {{camelCaseName}}Service.delete({ id: idParams });
 
               return { data: res };
             },

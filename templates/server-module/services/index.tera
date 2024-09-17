@@ -15,7 +15,7 @@ import {
   Create{{pasCalCaseName}}Params,
   Delete{{pasCalCaseName}}Params,
   DeleteMultiple{{pasCalCaseName}}Params,
-  {% if hasRelation %}
+  {% if hasRelation or withDetail %}
   {{upperSnakeCaseName}}_RELATION_LIST,
   {% endif %}
   GetDetail{{pasCalCaseName}}Params,
@@ -38,7 +38,7 @@ export default class {{pasCalCaseName}}Service {
     return result[0].count;
   }
 
-  {% if hasRelation %}
+  {% if hasRelation or withDetail %}
   getRelations(includes?: string) {
     if (!includes) return undefined;
 
@@ -52,9 +52,11 @@ export default class {{pasCalCaseName}}Service {
       if (!{{upperSnakeCaseName}}_RELATION_LIST.includes(relationType)) return;
 
       switch (relationType) {
+        {% if withDetail %}
         case "detail":
           relationObj = { ...(relationObj ?? {}), [relationType]: true };
           break;
+        {% endif %}
         default:
           break;
       }
@@ -69,9 +71,9 @@ export default class {{pasCalCaseName}}Service {
       sortBy,
       sortOrder,
       limit = 10,
-      offset = 0,
+      page = 1,
       name,
-      {% if hasRelation %}
+      {% if hasRelation or withDetail %}
       includes,
       {% endif %}
     } = params;
@@ -86,7 +88,7 @@ export default class {{pasCalCaseName}}Service {
         )}%')`
       );
 
-    {% if hasRelation %}
+    {% if hasRelation or withDetail %}
     const relations = this.getRelations(includes);
     {% endif %}
     
@@ -99,7 +101,7 @@ export default class {{pasCalCaseName}}Service {
         sortOrder === "asc"
           ? asc({{camelCaseName}}Table[sortBy ?? "createdAt"])
           : desc({{camelCaseName}}Table[sortBy ?? "createdAt"]),
-      {% if hasRelation %}
+      {% if hasRelation or withDetail %}
       with: relations,
       {% endif %}
     });
@@ -131,7 +133,7 @@ export default class {{pasCalCaseName}}Service {
       limit = 10,
       offset = 0,
       name,
-      {% if hasRelation %}
+      {% if hasRelation or withDetail %}
       includes,
       {% endif %}
     } = params;
@@ -146,7 +148,7 @@ export default class {{pasCalCaseName}}Service {
         )}%')`
       );
 
-    {% if hasRelation %}
+    {% if hasRelation or withDetail %}
     const relations = this.getRelations(includes);
     {% endif %}
 
@@ -159,7 +161,7 @@ export default class {{pasCalCaseName}}Service {
         sortOrder === "asc"
           ? asc({{camelCaseName}}Table[sortBy ?? "createdAt"])
           : desc({{camelCaseName}}Table[sortBy ?? "createdAt"]),
-      {% if hasRelation %}
+      {% if hasRelation or withDetail %}
       with: relations,
       {% endif %}
     });
@@ -180,18 +182,18 @@ export default class {{pasCalCaseName}}Service {
   async getDetail(params: GetDetail{{pasCalCaseName}}Params) {
     const {
       id,
-      {% if hasRelation %}
+      {% if hasRelation or withDetail %}
       includes,
       {% endif %}
     } = params;
 
-    {% if hasRelation %}
+    {% if hasRelation or withDetail %}
     const relations = this.getRelations(includes);
     {% endif %}
 
     return await this.db.query.{{camelCaseName}}Table.findFirst({
       where: eq({{camelCaseName}}Table.id, id),
-      {% if hasRelation %}
+      {% if hasRelation or withDetail %}
       with: relations,
       {% endif %}
     });

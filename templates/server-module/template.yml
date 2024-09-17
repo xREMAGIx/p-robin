@@ -2,16 +2,25 @@
 $schema: "https://moonrepo.dev/schemas/template.json"
 
 # REQUIRED: Name of the template in a human readable format.
-title: "Server module"
+title: "SERVER MODULE"
 
 # REQUIRED: Description of what the template is for and other relevant information.
 description: |
   Create server module, includes: model, controller, service files.
-  NOTE:
+
+  Note:
+
+  Options:
+  - withDetail: include items detail
+  - hasRelation: include relation
+
   Before generate: 
   - you should create table in db-schema.
+
   After generate:
   - add new service to servicesPlugin in plugins.ts
+  - recheck each new files since they are auto generated, some files may have unsuitable content
+  - if you have relation, you should remove placeholder "relation" in model, then add new case in getRelations in service file
 
 # Mapping of variables that will be interpolated and rendered within template files.
 # Users will be prompted to provide a value when running the generator.
@@ -20,6 +29,14 @@ variables:
     type: "string"
     default: ""
     required: true
-    prompt: "Module name? (format: kebab-case)"
+    prompt: "Module name? (separate with space)"
+  hasRelation:
+    type: "boolean"
+    default: false
+    prompt: "Does it have relation?"
+  withDetail:
+    type: "boolean"
+    default: false
+    prompt: "Does it have items detail?"
 
 destination: "apps/server/src"

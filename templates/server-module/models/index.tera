@@ -22,10 +22,10 @@ export const baseInsert{{pasCalCaseName}}Schema = createInsertSchema({{camelCase
 {% if hasRelation or withDetail %}
 export const {{upperSnakeCaseName}}_RELATION_LIST = [
   {% if withDetail %}
-  "detail"
+  "detail",
   {% endif %}
   {% if hasRelation %}
-  "relation"
+  "relation",
   {% endif %}
 ] as const;
 
@@ -50,7 +50,7 @@ export const list{{pasCalCaseName}}QuerySchema = t.Composite([
   t.Object({
     name: t.Optional(t.String()),
   }),
-  {% if hasRelation %}
+  {% if hasRelation or withDetail %}
   {{camelCaseName}}RelationSchema,
   {% endif %}
 ]);
@@ -93,12 +93,24 @@ export const detail{{pasCalCaseName}}DataSchema = t.Object({
 
 export const create{{pasCalCaseName}}ParamSchema = t.Composite([
   t.Omit(baseInsert{{pasCalCaseName}}Schema, ["id", "createdAt", "updatedAt"]),
-  t.Object({}),
+  t.Object({
+    {% if withDetail %}
+    detail: t.Array(
+      t.Omit(create{{pasCalCaseName}}DetailParamSchema, ["{{camelCaseName}}Id"])
+    ),
+    {% endif %}
+  }),
 ]);
 
 export const update{{pasCalCaseName}}ParamSchema = t.Composite([
   t.Omit(baseInsert{{pasCalCaseName}}Schema, ["id", "createdAt", "updatedAt"]),
-  t.Object({}),
+  t.Object({
+    {% if withDetail %}
+    detail: t.Array(
+      t.Omit(create{{pasCalCaseName}}DetailParamSchema, ["{{camelCaseName}}Id"])
+    ),
+    {% endif %}
+  }),
 ]);
 
 export const delete{{pasCalCaseName}}DataSchema = t.Object({
