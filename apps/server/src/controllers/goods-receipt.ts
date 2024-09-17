@@ -34,6 +34,7 @@ export const goodsReceiptRoutes = new Elysia({
     app
       .use(servicesPlugin)
       .use(goodsReceiptModel)
+      .use(authenticatePlugin)
       //* List
       .get(
         "/page-pagination",
@@ -195,7 +196,6 @@ export const goodsReceiptRoutes = new Elysia({
       //* Create
       .guard((innerApp) =>
         innerApp
-          .use(authenticatePlugin)
           .post(
             "/create",
             async ({ body, userId, goodsReceiptService }) => {

@@ -35,6 +35,7 @@ export const goodsIssueRoutes = new Elysia({
     app
       .use(servicesPlugin)
       .use(goodsIssueModel)
+      .use(authenticatePlugin)
       //* List
       .get(
         "/page-pagination",
@@ -198,7 +199,6 @@ export const goodsIssueRoutes = new Elysia({
       )
       .guard((innerApp) =>
         innerApp
-          .use(authenticatePlugin)
           //* Create
           .post(
             "/create",

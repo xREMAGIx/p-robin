@@ -1,15 +1,24 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-typebox";
 import Elysia, { Static, t } from "elysia";
-import { goodsIssueDetailTable } from "../db-schema";
+import { goodsIssueDetailTable, productTable } from "../db-schema";
 import { metaPaginationSchema, queryPaginationSchema } from "./base";
 
 export const baseSelectGoodsIssueDetailSchema = createSelectSchema(
   goodsIssueDetailTable
 );
 
+const baseSelectProductSchema = createSelectSchema(productTable);
+
 export const baseInsertGoodsIssueDetailSchema = createInsertSchema(
   goodsIssueDetailTable
 );
+
+export const goodsIssueDetailDataSchema = t.Composite([
+  baseSelectGoodsIssueDetailSchema,
+  t.Object({
+    product: t.Optional(t.Nullable(t.Composite([baseSelectProductSchema]))),
+  }),
+]);
 
 export const listGoodsIssueDetailQuerySchema = t.Composite([
   queryPaginationSchema,
@@ -17,11 +26,11 @@ export const listGoodsIssueDetailQuerySchema = t.Composite([
 ]);
 
 export const listGoodsIssueDetailDataSchema = t.Array(
-  baseSelectGoodsIssueDetailSchema
+  goodsIssueDetailDataSchema
 );
 
 export const listGoodsIssueDetailPagePaginationDataSchema = t.Object({
-  data: t.Array(baseSelectGoodsIssueDetailSchema),
+  data: t.Array(goodsIssueDetailDataSchema),
   meta: t.Pick(t.Required(metaPaginationSchema), [
     "limit",
     "page",
@@ -31,7 +40,7 @@ export const listGoodsIssueDetailPagePaginationDataSchema = t.Object({
 });
 
 export const listGoodsIssueDetailOffsetPaginationDataSchema = t.Object({
-  data: t.Array(baseSelectGoodsIssueDetailSchema),
+  data: t.Array(goodsIssueDetailDataSchema),
   meta: t.Pick(t.Required(metaPaginationSchema), [
     "limit",
     "offset",
@@ -40,7 +49,7 @@ export const listGoodsIssueDetailOffsetPaginationDataSchema = t.Object({
 });
 
 export const detailGoodsIssueDetailDataSchema = t.Object({
-  data: baseSelectGoodsIssueDetailSchema,
+  data: goodsIssueDetailDataSchema,
 });
 
 export const createGoodsIssueDetailParamSchema = t.Composite([

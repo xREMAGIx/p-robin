@@ -1,15 +1,24 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-typebox";
 import Elysia, { Static, t } from "elysia";
-import { goodsReceiptDetailTable } from "../db-schema";
+import { goodsReceiptDetailTable, productTable } from "../db-schema";
 import { metaPaginationSchema, queryPaginationSchema } from "./base";
 
 export const baseSelectGoodsReceiptDetailSchema = createSelectSchema(
   goodsReceiptDetailTable
 );
 
+const baseSelectProductSchema = createSelectSchema(productTable);
+
 export const baseInsertGoodsReceiptDetailSchema = createInsertSchema(
   goodsReceiptDetailTable
 );
+
+export const goodsReceiptDetailDataSchema = t.Composite([
+  baseSelectGoodsReceiptDetailSchema,
+  t.Object({
+    product: t.Optional(t.Nullable(t.Composite([baseSelectProductSchema]))),
+  }),
+]);
 
 export const listGoodsReceiptDetailQuerySchema = t.Composite([
   queryPaginationSchema,
@@ -17,11 +26,11 @@ export const listGoodsReceiptDetailQuerySchema = t.Composite([
 ]);
 
 export const listGoodsReceiptDetailDataSchema = t.Array(
-  baseSelectGoodsReceiptDetailSchema
+  goodsReceiptDetailDataSchema
 );
 
 export const listGoodsReceiptDetailPagePaginationDataSchema = t.Object({
-  data: t.Array(baseSelectGoodsReceiptDetailSchema),
+  data: t.Array(goodsReceiptDetailDataSchema),
   meta: t.Pick(t.Required(metaPaginationSchema), [
     "limit",
     "page",
@@ -31,7 +40,7 @@ export const listGoodsReceiptDetailPagePaginationDataSchema = t.Object({
 });
 
 export const listGoodsReceiptDetailOffsetPaginationDataSchema = t.Object({
-  data: t.Array(baseSelectGoodsReceiptDetailSchema),
+  data: t.Array(goodsReceiptDetailDataSchema),
   meta: t.Pick(t.Required(metaPaginationSchema), [
     "limit",
     "offset",
@@ -40,7 +49,7 @@ export const listGoodsReceiptDetailOffsetPaginationDataSchema = t.Object({
 });
 
 export const detailGoodsReceiptDetailDataSchema = t.Object({
-  data: baseSelectGoodsReceiptDetailSchema,
+  data: goodsReceiptDetailDataSchema,
 });
 
 export const createGoodsReceiptDetailParamSchema = t.Composite([

@@ -61,6 +61,10 @@ export const productTable = pgTable("product", {
   status: integer("status").notNull(),
 });
 
+export const productRelation = relations(productTable, ({ many }) => ({
+  productInGoodsReceipt: many(goodsReceiptDetailTable),
+}));
+
 export const customerOrderTable = pgTable("customer_order", {
   id: serial("id").primaryKey(),
   code: varchar("code", { length: 256 }),

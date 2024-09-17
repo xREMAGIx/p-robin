@@ -7,6 +7,10 @@ export const baseSelectProductSchema = createSelectSchema(productTable);
 
 export const baseInsertProductSchema = createInsertSchema(productTable);
 
+export const PRODUCT_PROPERTY_RELATION_EXCLUDED_LIST: (keyof Static<
+  typeof baseSelectProductSchema
+>)[] = ["costPrice", "createdByUserId", "updatedByUserId", "status"];
+
 export const listProductQuerySchema = t.Composite([
   queryPaginationSchema,
   t.Object({

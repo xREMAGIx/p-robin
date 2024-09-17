@@ -10,12 +10,14 @@ import {
 export const baseSelectGoodsIssueSchema = createSelectSchema(goodsIssueTable);
 export const baseInsertGoodsIssueSchema = createInsertSchema(goodsIssueTable);
 
-export const GOODS_ISSUE_RELATION_LIST = ["detail"] as const;
+export const GOODS_ISSUE_RELATION_LIST = ["detail", "detail-product"] as const;
 
 export const goodsIssueRelationSchema = t.Object({
   includes: t.Optional(
-    t.Union([t.Literal("detail")], {
-      description: GOODS_ISSUE_RELATION_LIST.join(" | "),
+    t.String({
+      description: `${GOODS_ISSUE_RELATION_LIST.join(
+        " | "
+      )} (separate with comma)`,
     })
   ),
 });

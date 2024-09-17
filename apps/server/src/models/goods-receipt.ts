@@ -13,12 +13,17 @@ export const baseSelectGoodsReceiptSchema =
 export const baseInsertGoodsReceiptSchema =
   createInsertSchema(goodsReceiptTable);
 
-export const GOODS_RECEIPT_RELATION_LIST = ["detail"] as const;
+export const GOODS_RECEIPT_RELATION_LIST = [
+  "detail",
+  "detail-product",
+] as const;
 
 export const goodsReceiptRelationSchema = t.Object({
   includes: t.Optional(
-    t.Union([t.Literal("detail")], {
-      description: GOODS_RECEIPT_RELATION_LIST.join(" | "),
+    t.String({
+      description: `${GOODS_RECEIPT_RELATION_LIST.join(
+        " | "
+      )} (separate with comma)`,
     })
   ),
 });
@@ -37,7 +42,7 @@ export const goodsReceiptDataSchema = t.Composite([
 ]);
 
 export const listGoodsReceiptPagePaginationDataSchema = t.Object({
-  data: t.Array(baseSelectGoodsReceiptSchema),
+  data: t.Array(goodsReceiptDataSchema),
   meta: t.Pick(t.Required(metaPaginationSchema), [
     "limit",
     "page",
@@ -47,7 +52,7 @@ export const listGoodsReceiptPagePaginationDataSchema = t.Object({
 });
 
 export const listGoodsReceiptOffsetPaginationDataSchema = t.Object({
-  data: t.Array(baseSelectGoodsReceiptSchema),
+  data: t.Array(goodsReceiptDataSchema),
   meta: t.Pick(t.Required(metaPaginationSchema), [
     "limit",
     "offset",

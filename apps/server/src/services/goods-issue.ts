@@ -43,7 +43,16 @@ export default class GoodsIssueService {
         case "detail":
           relationObj = { ...(relationObj ?? {}), [relationType]: true };
           break;
-
+        case "detail-product":
+          relationObj = {
+            ...(relationObj ?? {}),
+            ["detail"]: {
+              with: {
+                ["product"]: true,
+              },
+            },
+          };
+          break;
         default:
           break;
       }

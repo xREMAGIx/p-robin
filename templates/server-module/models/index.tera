@@ -31,15 +31,10 @@ export const {{upperSnakeCaseName}}_RELATION_LIST = [
 
 export const {{camelCaseName}}RelationSchema = t.Object({
   includes: t.Optional(
-    t.Union([
-      {% if withDetail %}
-      t.Literal("detail"), 
-      {% endif %}
-      {% if hasRelation %}
-      t.Literal("relation"), 
-      {% endif %}
-    ], {
-      description: {{upperSnakeCaseName}}_RELATION_LIST.join(" | "),
+    t.String({
+      description: `${ {{upperSnakeCaseName}}_RELATION_LIST.join(
+        " | "
+      )} (separate with comma)`,
     })
   ),
 });
