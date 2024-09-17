@@ -25,3 +25,27 @@ export enum PRODUCT_STATUS_CODE {
   PUBLISHED = 1,
   END_OF_SERVICE = 2,
 }
+
+export enum GOODS_RECEIPT_STATUS {
+  PENDING = "pending",
+  APPROVED = "approved",
+  REJECTED = "rejected",
+}
+
+export enum GOODS_RECEIPT_STATUS_CODE {
+  PENDING = 0,
+  APPROVED = 1,
+  REJECTED = 2,
+}
+
+export enum GOODS_ISSUE_STATUS {
+  PENDING = "pending",
+  APPROVED = "approved",
+  REJECTED = "rejected",
+}
+
+export enum GOODS_ISSUE_STATUS_CODE {
+  PENDING = 0,
+  APPROVED = 1,
+  REJECTED = 2,
+}
