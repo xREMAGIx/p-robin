@@ -11,8 +11,10 @@ export const PROVINCE_RELATION_LIST = ["districts"] as const;
 
 export const provinceRelationSchema = t.Object({
   includes: t.Optional(
-    t.Union([t.Literal("districts")], {
-      description: PROVINCE_RELATION_LIST.join(" | "),
+    t.String({
+      description: `${PROVINCE_RELATION_LIST.join(
+        " | "
+      )} (separate with comma)`,
     })
   ),
 });

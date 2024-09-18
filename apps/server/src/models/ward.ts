@@ -13,8 +13,8 @@ export const WARD_RELATION_LIST = ["district", "district-province"] as const;
 
 export const wardRelationSchema = t.Object({
   includes: t.Optional(
-    t.Union([t.Literal("district"), t.Literal("district-province")], {
-      description: WARD_RELATION_LIST.join(" | "),
+    t.String({
+      description: `${WARD_RELATION_LIST.join(" | ")} (separate with comma)`,
     })
   ),
 });

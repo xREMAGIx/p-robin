@@ -3,12 +3,14 @@ import swagger from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 import { authRoutes } from "./controllers/auth";
 import { districtRoutes } from "./controllers/district";
+import { goodsIssueRoutes } from "./controllers/goods-issue";
+import { goodsReceiptRoutes } from "./controllers/goods-receipt";
+import { inventoryRoutes } from "./controllers/inventory";
 import { productRoutes } from "./controllers/product";
 import { provinceRoutes } from "./controllers/province";
 import { wardRoutes } from "./controllers/ward";
 import { warehouseRoutes } from "./controllers/warehouse";
 import { errorPlugin } from "./utils/plugins";
-import { inventoryRoutes } from "./controllers/inventory";
 
 const app = new Elysia({ name: "root" })
   .use(
@@ -32,6 +34,8 @@ const app = new Elysia({ name: "root" })
   .use(wardRoutes)
   .use(warehouseRoutes)
   .use(inventoryRoutes)
+  .use(goodsReceiptRoutes)
+  .use(goodsIssueRoutes)
   .listen(9000);
 
 console.log(

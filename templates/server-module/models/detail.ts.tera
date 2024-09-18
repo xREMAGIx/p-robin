@@ -1,0 +1,115 @@
+{% set pasCalCaseName = name | pascal_case %}
+{% set camelCaseName = name | camel_case %}
+{% set kebabCaseName = name | kebab_case %}
+
+---
+to: models/{{ kebabCaseName }}-detail.ts
+skip: {{ withDetail == false }}
+---
+
+import { createInsertSchema, createSelectSchema } from "drizzle-typebox";
+import Elysia, { Static, t } from "elysia";
+import { {{camelCaseName}}DetailTable } from "../db-schema";
+import { metaPaginationSchema, queryPaginationSchema } from "./base";
+
+export const baseSelect{{pasCalCaseName}}DetailSchema = createSelectSchema(
+  {{camelCaseName}}DetailTable
+);
+
+export const baseInsert{{pasCalCaseName}}DetailSchema = createInsertSchema(
+  {{camelCaseName}}DetailTable
+);
+
+export const list{{pasCalCaseName}}DetailQuerySchema = t.Composite([
+  queryPaginationSchema,
+  t.Object({}),
+]);
+
+export const list{{pasCalCaseName}}DetailDataSchema = t.Array(
+  baseSelect{{pasCalCaseName}}DetailSchema
+);
+
+export const list{{pasCalCaseName}}DetailPagePaginationDataSchema = t.Object({
+  data: t.Array(baseSelect{{pasCalCaseName}}DetailSchema),
+  meta: t.Pick(t.Required(metaPaginationSchema), [
+    "limit",
+    "page",
+    "total",
+    "totalPages",
+  ]),
+});
+
+export const list{{pasCalCaseName}}DetailOffsetPaginationDataSchema = t.Object({
+  data: t.Array(baseSelect{{pasCalCaseName}}DetailSchema),
+  meta: t.Pick(t.Required(metaPaginationSchema), [
+    "limit",
+    "offset",
+    "hasMore",
+  ]),
+});
+
+export const detail{{pasCalCaseName}}DetailDataSchema = t.Object({
+  data: baseSelect{{pasCalCaseName}}DetailSchema,
+});
+
+export const create{{pasCalCaseName}}DetailParamSchema = t.Composite([
+  t.Omit(baseInsert{{pasCalCaseName}}DetailSchema, ["id", "createdAt", "updatedAt"]),
+  t.Object({}),
+]);
+
+export const update{{pasCalCaseName}}DetailParamSchema = t.Composite([
+  t.Omit(baseInsert{{pasCalCaseName}}DetailSchema, ["id", "createdAt", "updatedAt"]),
+  t.Object({}),
+]);
+
+export const delete{{pasCalCaseName}}DetailDataSchema = t.Object({
+  data: t.Object({ id: t.Number() }),
+});
+
+export const multipleDelete{{pasCalCaseName}}DetailParamSchema = t.Object({
+  ids: t.Array(t.Number()),
+});
+
+export const multipleDelete{{pasCalCaseName}}DetailDataSchema = t.Object({
+  data: t.Array(t.Object({ id: t.Number() })),
+});
+
+export type {{pasCalCaseName}}DetailData = Static<
+  typeof baseSelect{{pasCalCaseName}}DetailSchema
+>;
+
+export type {{pasCalCaseName}}DetailListPagePaginationData = Static<
+  typeof list{{pasCalCaseName}}DetailPagePaginationDataSchema
+>;
+
+export type GetList{{pasCalCaseName}}DetailParams = Static<
+  typeof list{{pasCalCaseName}}DetailQuerySchema
+> & {
+  sortBy?: keyof {{pasCalCaseName}}DetailData;
+};
+
+export type GetDetail{{pasCalCaseName}}DetailParams = {
+  id: number;
+};
+
+export type Create{{pasCalCaseName}}DetailParams = Static<
+  typeof create{{pasCalCaseName}}DetailParamSchema
+>;
+export type Update{{pasCalCaseName}}DetailParams = Static<
+  typeof update{{pasCalCaseName}}DetailParamSchema
+> & {
+  id: number;
+};
+export type Delete{{pasCalCaseName}}DetailParams = {
+  id: number;
+};
+export type DeleteMultiple{{pasCalCaseName}}DetailParams = Static<
+  typeof multipleDelete{{pasCalCaseName}}DetailParamSchema
+>;
+
+//* Model
+export const {{camelCaseName}}DetailModel = new Elysia({
+  name: "{{kebabCaseName}}-detail-model",
+}).model({
+  "{{camelCaseName}}Detail.data": baseSelect{{pasCalCaseName}}DetailSchema,
+});

@@ -5,6 +5,8 @@ import { AUTH_TOKENS, ERROR_CODES } from "../config/enums";
 import { queryPaginationModel } from "../models/base";
 import AuthService from "../services/auth";
 import DistrictService from "../services/district";
+import GoodsIssueService from "../services/goods-issue";
+import GoodsReceiptService from "../services/goods-receipt";
 import InventoryService from "../services/inventory";
 import ProductService from "../services/product";
 import ProvinceService from "../services/province";
@@ -118,6 +120,24 @@ export const errorPlugin = new Elysia({ name: "error-plugin" })
       case "INTERNAL_SERVER_ERROR":
       default:
         console.log(error.message);
+
+        if (error.name === "PostgresError") {
+          set.status = 400;
+
+          return {
+            errors: [
+              {
+                status: "400",
+                code: "BAD_REQUEST",
+                title: "BAD_REQUEST",
+                detail: translate
+                  ? translate("bad_request", { ns: "error" })
+                  : "Bad request",
+              },
+            ],
+          };
+        }
+
         set.status = 500;
 
         return {
@@ -172,9 +192,11 @@ export const idValidatePlugin = new Elysia({
       }
     },
   })
-  .derive({ as: "scoped" }, ({ params }) => ({
-    idParams: params.id,
-  }));
+  .resolve({ as: "scoped" }, ({ params }) => {
+    return {
+      idParams: Number(params.id),
+    };
+  });
 
 export const databasePlugin = new Elysia({ name: "connect-db" }).decorate(
   "db",
@@ -192,5 +214,7 @@ export const servicesPlugin = new Elysia({ name: "services-plugin" })
       wardService: new WardService(db),
       warehouseService: new WarehouseService(db),
       inventoryService: new InventoryService(db),
+      goodsReceiptService: new GoodsReceiptService(db),
+      goodsIssueService: new GoodsIssueService(db),
     };
   });

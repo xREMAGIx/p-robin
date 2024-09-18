@@ -2,19 +2,19 @@ import { Elysia } from "elysia";
 import { ERROR_CODES } from "../config/enums";
 import { apiErrorSchema } from "../models/base";
 import {
-  ProvinceData,
-  createProvinceParamSchema,
-  deleteProvinceDataSchema,
-  detailProvinceDataSchema,
-  detailProvinceQueryParamSchema,
-  listProvinceOffsetPaginationDataSchema,
-  listProvincePagePaginationDataSchema,
-  listProvinceQuerySchema,
-  multipleDeleteProvinceDataSchema,
-  multipleDeleteProvinceParamSchema,
-  provinceModel,
-  updateProvinceParamSchema,
-} from "../models/province";
+  GoodsIssueData,
+  createGoodsIssueParamSchema,
+  deleteGoodsIssueDataSchema,
+  detailGoodsIssueDataSchema,
+  detailGoodsIssueQueryParamSchema,
+  listGoodsIssueOffsetPaginationDataSchema,
+  listGoodsIssuePagePaginationDataSchema,
+  listGoodsIssueQuerySchema,
+  multipleDeleteGoodsIssueDataSchema,
+  multipleDeleteGoodsIssueParamSchema,
+  goodsIssueModel,
+  updateGoodsIssueParamSchema,
+} from "../models/goods-issue";
 import { ApiError } from "../utils/errors";
 import {
   authenticatePlugin,
@@ -22,19 +22,20 @@ import {
   servicesPlugin,
 } from "../utils/plugins";
 
-export const provinceRoutes = new Elysia({
-  name: "province-controller",
+export const goodsIssueRoutes = new Elysia({
+  name: "goods-issue-controller",
 }).group(
-  `api/provinces`,
+  `api/goods-issues`,
   {
     detail: {
-      tags: ["Province"],
+      tags: ["Goods Issue"],
     },
   },
   (app) =>
     app
       .use(servicesPlugin)
-      .use(provinceModel)
+      .use(goodsIssueModel)
+      .use(authenticatePlugin)
       //* List
       .get(
         "/page-pagination",
@@ -46,11 +47,10 @@ export const provinceRoutes = new Elysia({
             page = 1,
             ...rest
           },
-          provinceService,
+          goodsIssueService,
         }) => {
-          const sortBy = sortByParams as keyof ProvinceData;
-          const sortByList: (keyof ProvinceData)[] = [
-            "name",
+          const sortBy = sortByParams as keyof GoodsIssueData;
+          const sortByList: (keyof GoodsIssueData)[] = [
             "createdAt",
             "updatedAt",
           ];
@@ -72,7 +72,7 @@ export const provinceRoutes = new Elysia({
             });
           }
 
-          const res = await provinceService.getListPagePagination({
+          const res = await goodsIssueService.getListPagePagination({
             sortBy: sortBy,
             sortOrder: sortOrder,
             limit: Number(limit),
@@ -81,19 +81,19 @@ export const provinceRoutes = new Elysia({
           });
 
           return {
-            data: res.provinces,
+            data: res.goodsIssues,
             meta: res.meta,
           };
         },
         {
-          query: listProvinceQuerySchema,
+          query: listGoodsIssueQuerySchema,
           response: {
-            200: listProvincePagePaginationDataSchema,
+            200: listGoodsIssuePagePaginationDataSchema,
             422: apiErrorSchema,
             500: apiErrorSchema,
           },
           detail: {
-            summary: "Get Province List (page pagination)",
+            summary: "Get Goods Issue List (page pagination)",
           },
         }
       )
@@ -107,11 +107,10 @@ export const provinceRoutes = new Elysia({
             offset = 0,
             ...rest
           },
-          provinceService,
+          goodsIssueService,
         }) => {
-          const sortBy = sortByParams as keyof ProvinceData;
-          const sortByList: (keyof ProvinceData)[] = [
-            "name",
+          const sortBy = sortByParams as keyof GoodsIssueData;
+          const sortByList: (keyof GoodsIssueData)[] = [
             "createdAt",
             "updatedAt",
           ];
@@ -133,7 +132,7 @@ export const provinceRoutes = new Elysia({
             });
           }
 
-          const res = await provinceService.getListOffsetPagination({
+          const res = await goodsIssueService.getListOffsetPagination({
             sortBy: sortBy,
             sortOrder: sortOrder,
             limit: Number(limit),
@@ -142,19 +141,19 @@ export const provinceRoutes = new Elysia({
           });
 
           return {
-            data: res.provinces,
+            data: res.goodsIssues,
             meta: res.meta,
           };
         },
         {
-          query: listProvinceQuerySchema,
+          query: listGoodsIssueQuerySchema,
           response: {
-            200: listProvinceOffsetPaginationDataSchema,
+            200: listGoodsIssueOffsetPaginationDataSchema,
             422: apiErrorSchema,
             500: apiErrorSchema,
           },
           detail: {
-            summary: "Get Province List (offset pagination)",
+            summary: "Get Goods Issue List (offset pagination)",
           },
         }
       )
@@ -164,8 +163,8 @@ export const provinceRoutes = new Elysia({
           //* Get detail
           .get(
             "/:id",
-            async ({ idParams, provinceService, query: { ...queries } }) => {
-              const data = await provinceService.getDetail({
+            async ({ idParams, goodsIssueService, query: { ...queries } }) => {
+              const data = await goodsIssueService.getDetail({
                 id: idParams,
                 ...queries,
               });
@@ -184,65 +183,64 @@ export const provinceRoutes = new Elysia({
               };
             },
             {
-              query: detailProvinceQueryParamSchema,
+              query: detailGoodsIssueQueryParamSchema,
               response: {
-                200: detailProvinceDataSchema,
+                200: detailGoodsIssueDataSchema,
                 401: apiErrorSchema,
                 404: apiErrorSchema,
                 422: apiErrorSchema,
                 500: apiErrorSchema,
               },
               detail: {
-                summary: "Get Province Detail",
+                summary: "Get Goods Issue Detail",
               },
             }
           )
       )
       .guard((innerApp) =>
         innerApp
-          .use(authenticatePlugin)
           //* Create
           .post(
             "/create",
-            async ({ body, userId, provinceService }) => {
-              const data = await provinceService.create({ ...body, userId });
+            async ({ body, userId, goodsIssueService }) => {
+              const data = await goodsIssueService.create({ ...body, userId });
 
               return {
                 data: data,
               };
             },
             {
-              body: createProvinceParamSchema,
+              body: createGoodsIssueParamSchema,
               response: {
-                200: detailProvinceDataSchema,
+                200: detailGoodsIssueDataSchema,
                 401: apiErrorSchema,
                 422: apiErrorSchema,
                 500: apiErrorSchema,
               },
               detail: {
-                summary: "Create Province",
+                summary: "Create Goods Issue",
               },
             }
           )
           .delete(
             "/multiple-delete",
-            async ({ body, provinceService }) => {
-              const data = await provinceService.multipleDelete({ ...body });
+            async ({ body, goodsIssueService }) => {
+              const data = await goodsIssueService.multipleDelete({ ...body });
 
               return {
                 data: data,
               };
             },
             {
-              body: multipleDeleteProvinceParamSchema,
+              body: multipleDeleteGoodsIssueParamSchema,
               response: {
-                200: multipleDeleteProvinceDataSchema,
+                200: multipleDeleteGoodsIssueDataSchema,
                 401: apiErrorSchema,
                 422: apiErrorSchema,
                 500: apiErrorSchema,
               },
               detail: {
-                summary: "Multiple Delete Province",
+                summary: "Multiple Delete Goods Issue",
               },
             }
           )
@@ -250,8 +248,8 @@ export const provinceRoutes = new Elysia({
           //* Update
           .put(
             "/:id",
-            async ({ idParams, body, userId, provinceService }) => {
-              const data = await provinceService.update({
+            async ({ idParams, body, userId, goodsIssueService }) => {
+              const data = await goodsIssueService.update({
                 ...body,
                 userId,
                 id: idParams,
@@ -262,35 +260,35 @@ export const provinceRoutes = new Elysia({
               };
             },
             {
-              body: updateProvinceParamSchema,
+              body: updateGoodsIssueParamSchema,
               response: {
-                200: detailProvinceDataSchema,
+                200: detailGoodsIssueDataSchema,
                 401: apiErrorSchema,
                 422: apiErrorSchema,
                 500: apiErrorSchema,
               },
               detail: {
-                summary: "Update Province",
+                summary: "Update Goods Issue",
               },
             }
           )
           //* Delete
           .delete(
             "/:id",
-            async ({ idParams, provinceService }) => {
-              const res = await provinceService.delete({ id: idParams });
+            async ({ idParams, goodsIssueService }) => {
+              const res = await goodsIssueService.delete({ id: idParams });
 
               return { data: res };
             },
             {
               response: {
-                200: deleteProvinceDataSchema,
+                200: deleteGoodsIssueDataSchema,
                 401: apiErrorSchema,
                 422: apiErrorSchema,
                 500: apiErrorSchema,
               },
               detail: {
-                summary: "Delete Province",
+                summary: "Delete Goods Issue",
               },
             }
           )

@@ -1,20 +1,30 @@
+{% set pasCalCaseName = name | pascal_case %}
+{% set camelCaseName = name | camel_case %}
+{% set kebabCaseName = name | kebab_case %}
+{% set upperSnakeCaseName = name | upper_snake_case %}
+{% set titleCaseName = name | title %}
+
+---
+to: controllers/{{kebabCaseName}}.ts
+---
+
 import { Elysia } from "elysia";
 import { ERROR_CODES } from "../config/enums";
 import { apiErrorSchema } from "../models/base";
 import {
-  ProvinceData,
-  createProvinceParamSchema,
-  deleteProvinceDataSchema,
-  detailProvinceDataSchema,
-  detailProvinceQueryParamSchema,
-  listProvinceOffsetPaginationDataSchema,
-  listProvincePagePaginationDataSchema,
-  listProvinceQuerySchema,
-  multipleDeleteProvinceDataSchema,
-  multipleDeleteProvinceParamSchema,
-  provinceModel,
-  updateProvinceParamSchema,
-} from "../models/province";
+  {{pasCalCaseName}}Data,
+  create{{pasCalCaseName}}ParamSchema,
+  delete{{pasCalCaseName}}DataSchema,
+  detail{{pasCalCaseName}}DataSchema,
+  detail{{pasCalCaseName}}QueryParamSchema,
+  list{{pasCalCaseName}}OffsetPaginationDataSchema,
+  list{{pasCalCaseName}}PagePaginationDataSchema,
+  list{{pasCalCaseName}}QuerySchema,
+  multipleDelete{{pasCalCaseName}}DataSchema,
+  multipleDelete{{pasCalCaseName}}ParamSchema,
+  {{camelCaseName}}Model,
+  update{{pasCalCaseName}}ParamSchema,
+} from "../models/{{kebabCaseName}}";
 import { ApiError } from "../utils/errors";
 import {
   authenticatePlugin,
@@ -22,19 +32,19 @@ import {
   servicesPlugin,
 } from "../utils/plugins";
 
-export const provinceRoutes = new Elysia({
-  name: "province-controller",
+export const {{camelCaseName}}Routes = new Elysia({
+  name: "{{kebabCaseName}}-controller",
 }).group(
-  `api/provinces`,
+  `api/{{kebabCaseName}}s`,
   {
     detail: {
-      tags: ["Province"],
+      tags: ["{{titleCaseName}}"],
     },
   },
   (app) =>
     app
       .use(servicesPlugin)
-      .use(provinceModel)
+      .use({{camelCaseName}}Model)
       //* List
       .get(
         "/page-pagination",
@@ -46,10 +56,10 @@ export const provinceRoutes = new Elysia({
             page = 1,
             ...rest
           },
-          provinceService,
+          {{camelCaseName}}Service,
         }) => {
-          const sortBy = sortByParams as keyof ProvinceData;
-          const sortByList: (keyof ProvinceData)[] = [
+          const sortBy = sortByParams as keyof {{pasCalCaseName}}Data;
+          const sortByList: (keyof {{pasCalCaseName}}Data)[] = [
             "name",
             "createdAt",
             "updatedAt",
@@ -72,7 +82,7 @@ export const provinceRoutes = new Elysia({
             });
           }
 
-          const res = await provinceService.getListPagePagination({
+          const res = await {{camelCaseName}}Service.getListPagePagination({
             sortBy: sortBy,
             sortOrder: sortOrder,
             limit: Number(limit),
@@ -81,19 +91,19 @@ export const provinceRoutes = new Elysia({
           });
 
           return {
-            data: res.provinces,
+            data: res.{{camelCaseName}}s,
             meta: res.meta,
           };
         },
         {
-          query: listProvinceQuerySchema,
+          query: list{{pasCalCaseName}}QuerySchema,
           response: {
-            200: listProvincePagePaginationDataSchema,
+            200: list{{pasCalCaseName}}PagePaginationDataSchema,
             422: apiErrorSchema,
             500: apiErrorSchema,
           },
           detail: {
-            summary: "Get Province List (page pagination)",
+            summary: "Get {{titleCaseName}} List (page pagination)",
           },
         }
       )
@@ -107,10 +117,10 @@ export const provinceRoutes = new Elysia({
             offset = 0,
             ...rest
           },
-          provinceService,
+          {{camelCaseName}}Service,
         }) => {
-          const sortBy = sortByParams as keyof ProvinceData;
-          const sortByList: (keyof ProvinceData)[] = [
+          const sortBy = sortByParams as keyof {{pasCalCaseName}}Data;
+          const sortByList: (keyof {{pasCalCaseName}}Data)[] = [
             "name",
             "createdAt",
             "updatedAt",
@@ -133,7 +143,7 @@ export const provinceRoutes = new Elysia({
             });
           }
 
-          const res = await provinceService.getListOffsetPagination({
+          const res = await {{camelCaseName}}Service.getListOffsetPagination({
             sortBy: sortBy,
             sortOrder: sortOrder,
             limit: Number(limit),
@@ -142,19 +152,19 @@ export const provinceRoutes = new Elysia({
           });
 
           return {
-            data: res.provinces,
+            data: res.{{camelCaseName}}s,
             meta: res.meta,
           };
         },
         {
-          query: listProvinceQuerySchema,
+          query: list{{pasCalCaseName}}QuerySchema,
           response: {
-            200: listProvinceOffsetPaginationDataSchema,
+            200: list{{pasCalCaseName}}OffsetPaginationDataSchema,
             422: apiErrorSchema,
             500: apiErrorSchema,
           },
           detail: {
-            summary: "Get Province List (offset pagination)",
+            summary: "Get {{titleCaseName}} List (offset pagination)",
           },
         }
       )
@@ -164,8 +174,8 @@ export const provinceRoutes = new Elysia({
           //* Get detail
           .get(
             "/:id",
-            async ({ idParams, provinceService, query: { ...queries } }) => {
-              const data = await provinceService.getDetail({
+            async ({ idParams, {{camelCaseName}}Service, query: { ...queries } }) => {
+              const data = await {{camelCaseName}}Service.getDetail({
                 id: idParams,
                 ...queries,
               });
@@ -184,16 +194,16 @@ export const provinceRoutes = new Elysia({
               };
             },
             {
-              query: detailProvinceQueryParamSchema,
+              query: detail{{pasCalCaseName}}QueryParamSchema,
               response: {
-                200: detailProvinceDataSchema,
+                200: detail{{pasCalCaseName}}DataSchema,
                 401: apiErrorSchema,
                 404: apiErrorSchema,
                 422: apiErrorSchema,
                 500: apiErrorSchema,
               },
               detail: {
-                summary: "Get Province Detail",
+                summary: "Get {{titleCaseName}} Detail",
               },
             }
           )
@@ -204,45 +214,45 @@ export const provinceRoutes = new Elysia({
           //* Create
           .post(
             "/create",
-            async ({ body, userId, provinceService }) => {
-              const data = await provinceService.create({ ...body, userId });
+            async ({ body, userId, {{camelCaseName}}Service }) => {
+              const data = await {{camelCaseName}}Service.create({ ...body, userId });
 
               return {
                 data: data,
               };
             },
             {
-              body: createProvinceParamSchema,
+              body: create{{pasCalCaseName}}ParamSchema,
               response: {
-                200: detailProvinceDataSchema,
+                200: detail{{pasCalCaseName}}DataSchema,
                 401: apiErrorSchema,
                 422: apiErrorSchema,
                 500: apiErrorSchema,
               },
               detail: {
-                summary: "Create Province",
+                summary: "Create {{titleCaseName}}",
               },
             }
           )
           .delete(
             "/multiple-delete",
-            async ({ body, provinceService }) => {
-              const data = await provinceService.multipleDelete({ ...body });
+            async ({ body, {{camelCaseName}}Service }) => {
+              const data = await {{camelCaseName}}Service.multipleDelete({ ...body });
 
               return {
                 data: data,
               };
             },
             {
-              body: multipleDeleteProvinceParamSchema,
+              body: multipleDelete{{pasCalCaseName}}ParamSchema,
               response: {
-                200: multipleDeleteProvinceDataSchema,
+                200: multipleDelete{{pasCalCaseName}}DataSchema,
                 401: apiErrorSchema,
                 422: apiErrorSchema,
                 500: apiErrorSchema,
               },
               detail: {
-                summary: "Multiple Delete Province",
+                summary: "Multiple Delete {{titleCaseName}}",
               },
             }
           )
@@ -250,8 +260,8 @@ export const provinceRoutes = new Elysia({
           //* Update
           .put(
             "/:id",
-            async ({ idParams, body, userId, provinceService }) => {
-              const data = await provinceService.update({
+            async ({ idParams, body, userId, {{camelCaseName}}Service }) => {
+              const data = await {{camelCaseName}}Service.update({
                 ...body,
                 userId,
                 id: idParams,
@@ -262,35 +272,35 @@ export const provinceRoutes = new Elysia({
               };
             },
             {
-              body: updateProvinceParamSchema,
+              body: update{{pasCalCaseName}}ParamSchema,
               response: {
-                200: detailProvinceDataSchema,
+                200: detail{{pasCalCaseName}}DataSchema,
                 401: apiErrorSchema,
                 422: apiErrorSchema,
                 500: apiErrorSchema,
               },
               detail: {
-                summary: "Update Province",
+                summary: "Update {{titleCaseName}}",
               },
             }
           )
           //* Delete
           .delete(
             "/:id",
-            async ({ idParams, provinceService }) => {
-              const res = await provinceService.delete({ id: idParams });
+            async ({ idParams, {{camelCaseName}}Service }) => {
+              const res = await {{camelCaseName}}Service.delete({ id: idParams });
 
               return { data: res };
             },
             {
               response: {
-                200: deleteProvinceDataSchema,
+                200: delete{{pasCalCaseName}}DataSchema,
                 401: apiErrorSchema,
                 422: apiErrorSchema,
                 500: apiErrorSchema,
               },
               detail: {
-                summary: "Delete Province",
+                summary: "Delete {{titleCaseName}}",
               },
             }
           )

@@ -66,7 +66,7 @@
 - [ ] CRUD
 - [ ] Search, filter status
 
-## Transfer
+## Goods transfer
 
 - [ ] CRUD
 - [ ] Search, filter status
