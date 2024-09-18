@@ -120,6 +120,24 @@ export const errorPlugin = new Elysia({ name: "error-plugin" })
       case "INTERNAL_SERVER_ERROR":
       default:
         console.log(error.message);
+
+        if (error.name === "PostgresError") {
+          set.status = 400;
+
+          return {
+            errors: [
+              {
+                status: "400",
+                code: "BAD_REQUEST",
+                title: "BAD_REQUEST",
+                detail: translate
+                  ? translate("bad_request", { ns: "error" })
+                  : "Bad request",
+              },
+            ],
+          };
+        }
+
         set.status = 500;
 
         return {

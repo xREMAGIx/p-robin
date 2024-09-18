@@ -5,6 +5,7 @@ import {
   serial,
   text,
   timestamp,
+  unique,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -170,25 +171,34 @@ export const warehouseRelation = relations(warehouseTable, ({ many }) => ({
   goodsReceipts: many(goodsReceiptTable),
 }));
 
-export const inventoryTable = pgTable("inventory", {
-  id: serial("id").primaryKey(),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  productId: integer("product_id")
-    .references(() => productTable.id)
-    .notNull(),
-  warehouseId: integer("warehouse_id")
-    .references(() => warehouseTable.id)
-    .notNull(),
-  quantityAvailable: integer("quantity_available").default(0).notNull(),
-  minimumStockLevel: integer("minimum_stock_level").default(0).notNull(),
-  maximumStockLevel: integer("maximum_stock_level").default(0).notNull(),
-  reorderPoint: integer("reorder_point").default(0).notNull(),
-});
+export const inventoryTable = pgTable(
+  "inventory",
+  {
+    id: serial("id").primaryKey(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    productId: integer("product_id")
+      .references(() => productTable.id)
+      .notNull(),
+    warehouseId: integer("warehouse_id")
+      .references(() => warehouseTable.id)
+      .notNull(),
+    quantityAvailable: integer("quantity_available").default(0).notNull(),
+    minimumStockLevel: integer("minimum_stock_level").default(0).notNull(),
+    maximumStockLevel: integer("maximum_stock_level").default(0).notNull(),
+    reorderPoint: integer("reorder_point").default(0).notNull(),
+  },
+  (table) => ({
+    productInWarehouse: unique("product_in_warehouse").on(
+      table.productId,
+      table.warehouseId
+    ),
+  })
+);
 
 export const inventoryRelation = relations(inventoryTable, ({ one }) => ({
   warehouse: one(warehouseTable, {
@@ -230,22 +240,31 @@ export const goodsReceiptRelation = relations(
   })
 );
 
-export const goodsReceiptDetailTable = pgTable("goods_receipt_detail", {
-  id: serial("id").primaryKey(),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  goodsReceiptId: integer("goods_receipt_id")
-    .references(() => goodsReceiptTable.id)
-    .notNull(),
-  productId: integer("product_id")
-    .references(() => productTable.id)
-    .notNull(),
-  quantity: integer("quantity").default(0).notNull(),
-});
+export const goodsReceiptDetailTable = pgTable(
+  "goods_receipt_detail",
+  {
+    id: serial("id").primaryKey(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    goodsReceiptId: integer("goods_receipt_id")
+      .references(() => goodsReceiptTable.id)
+      .notNull(),
+    productId: integer("product_id")
+      .references(() => productTable.id)
+      .notNull(),
+    quantity: integer("quantity").notNull(),
+  },
+  (table) => ({
+    productInGoodsReceipt: unique("product_in_goods_receipt").on(
+      table.productId,
+      table.goodsReceiptId
+    ),
+  })
+);
 
 export const goodsReceiptDetailRelation = relations(
   goodsReceiptDetailTable,
@@ -294,22 +313,31 @@ export const goodsIssueRelation = relations(
   })
 );
 
-export const goodsIssueDetailTable = pgTable("goods_issue_detail", {
-  id: serial("id").primaryKey(),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  goodsIssueId: integer("goods_issue_id")
-    .references(() => goodsIssueTable.id)
-    .notNull(),
-  productId: integer("product_id")
-    .references(() => productTable.id)
-    .notNull(),
-  quantity: integer("quantity").default(0).notNull(),
-});
+export const goodsIssueDetailTable = pgTable(
+  "goods_issue_detail",
+  {
+    id: serial("id").primaryKey(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    goodsIssueId: integer("goods_issue_id")
+      .references(() => goodsIssueTable.id)
+      .notNull(),
+    productId: integer("product_id")
+      .references(() => productTable.id)
+      .notNull(),
+    quantity: integer("quantity").notNull(),
+  },
+  (table) => ({
+    productInGoodsIssue: unique("product_in_goods_issue").on(
+      table.productId,
+      table.goodsIssueId
+    ),
+  })
+);
 
 export const goodsIssueDetailRelation = relations(
   goodsIssueDetailTable,

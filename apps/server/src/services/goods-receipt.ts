@@ -1,6 +1,11 @@
 import { SQLWrapper, and, asc, count, desc, eq, or, sql } from "drizzle-orm";
 import { DBType } from "../config/database";
-import { goodsReceiptDetailTable, goodsReceiptTable } from "../db-schema";
+import { ERROR_CODES, GOODS_RECEIPT_STATUS_CODE } from "../config/enums";
+import {
+  goodsReceiptDetailTable,
+  goodsReceiptTable,
+  inventoryTable,
+} from "../db-schema";
 import { WithAuthenParams } from "../models/base";
 import {
   CreateGoodsReceiptParams,
@@ -9,8 +14,10 @@ import {
   GOODS_RECEIPT_RELATION_LIST,
   GetDetailGoodsReceiptParams,
   GetListGoodsReceiptParams,
+  GoodsReceiptData,
   UpdateGoodsReceiptParams,
 } from "../models/goods-receipt";
+import { ApiError } from "../utils/errors";
 
 export default class GoodsReceiptService {
   private db;
@@ -59,6 +66,34 @@ export default class GoodsReceiptService {
     });
 
     return relationObj;
+  }
+
+  async updateInventory(
+    goodsReceipt: GoodsReceiptData,
+    items: {
+      quantity: number;
+      productId: number;
+    }[]
+  ) {
+    const excludedQuantityAvailable = sql.raw(
+      `excluded.${inventoryTable.quantityAvailable.name}`
+    );
+
+    await this.db
+      .insert(inventoryTable)
+      .values(
+        items.map((item) => ({
+          productId: item.productId,
+          quantityAvailable: item.quantity,
+          warehouseId: goodsReceipt.warehouseId,
+        }))
+      )
+      .onConflictDoUpdate({
+        target: [inventoryTable.productId, inventoryTable.warehouseId],
+        set: {
+          quantityAvailable: sql`${inventoryTable.quantityAvailable} + ${excludedQuantityAvailable}`,
+        },
+      });
   }
 
   async getListPagePagination(params: GetListGoodsReceiptParams) {
@@ -157,18 +192,52 @@ export default class GoodsReceiptService {
       })
       .returning();
 
+    const newRecord = results[0];
+
     await this.db.insert(goodsReceiptDetailTable).values(
       detail.map((item) => ({
         ...item,
-        goodsReceiptId: results[0].id,
+        goodsReceiptId: newRecord.id,
       }))
     );
 
-    return results[0];
+    if (newRecord.status === GOODS_RECEIPT_STATUS_CODE.APPROVED) {
+      await this.updateInventory(newRecord, detail);
+    }
+
+    return newRecord;
   }
 
   async update(params: WithAuthenParams<UpdateGoodsReceiptParams>) {
-    const { id, userId, ...rest } = params;
+    const { id, userId, detail, ...rest } = params;
+
+    const record = await this.db.query.goodsReceiptTable.findFirst({
+      where: eq(goodsReceiptTable.id, id),
+      with: {
+        detail: true,
+      },
+    });
+
+    if (!record) {
+      throw new ApiError({
+        status: "404",
+        errorCode: ERROR_CODES.NOT_FOUND_DATA,
+        title: ERROR_CODES.NOT_FOUND_DATA,
+        messageCode: "not_found_data",
+      });
+    }
+
+    if (
+      record.status === GOODS_RECEIPT_STATUS_CODE.APPROVED ||
+      record.status === GOODS_RECEIPT_STATUS_CODE.REJECTED
+    ) {
+      throw new ApiError({
+        status: "400",
+        errorCode: ERROR_CODES.GOODS_RECEIPT_STATUS_CODE_APPROVED_REJECTED,
+        title: ERROR_CODES.GOODS_RECEIPT_STATUS_CODE_APPROVED_REJECTED,
+        messageCode: "goods_receipt_status_code_approved_rejected",
+      });
+    }
 
     const results = await this.db
       .update(goodsReceiptTable)
@@ -180,7 +249,39 @@ export default class GoodsReceiptService {
       .where(eq(goodsReceiptTable.id, id))
       .returning();
 
-    return results[0];
+    const newRecord = results[0];
+
+    if (detail && detail.length > 0) {
+      await this.db
+        .insert(goodsReceiptDetailTable)
+        .values(
+          detail.map((item) => ({
+            ...item,
+            goodsReceiptId: record.id,
+          }))
+        )
+        .onConflictDoUpdate({
+          target: [
+            goodsReceiptDetailTable.goodsReceiptId,
+            goodsReceiptDetailTable.productId,
+          ],
+          set: {
+            quantity: sql.raw(
+              `excluded.${goodsReceiptDetailTable.quantity.name}`
+            ),
+          },
+        });
+    }
+
+    if (newRecord.status === GOODS_RECEIPT_STATUS_CODE.APPROVED) {
+      if (!detail) {
+        await this.updateInventory(newRecord, record.detail);
+      } else {
+        await this.updateInventory(newRecord, detail);
+      }
+    }
+
+    return newRecord;
   }
 
   async delete(params: DeleteGoodsReceiptParams) {

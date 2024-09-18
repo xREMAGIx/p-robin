@@ -1,5 +1,5 @@
 {
-  "id": "95cd5635-ca6a-4b5d-9a61-b1c52b97a0c0",
+  "id": "2609944a-7f74-4e2b-84f6-d4f065bf2b29",
   "prevId": "9ccdbc4e-5387-48ee-9d13-3581ddc15d07",
   "version": "7",
   "dialect": "postgresql",
@@ -306,7 +306,16 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "product_in_goods_issue": {
+          "name": "product_in_goods_issue",
+          "nullsNotDistinct": false,
+          "columns": [
+            "product_id",
+            "goods_issue_id"
+          ]
+        }
+      }
     },
     "public.goods_issue": {
       "name": "goods_issue",
@@ -478,7 +487,16 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "product_in_goods_receipt": {
+          "name": "product_in_goods_receipt",
+          "nullsNotDistinct": false,
+          "columns": [
+            "product_id",
+            "goods_receipt_id"
+          ]
+        }
+      }
     },
     "public.goods_receipt": {
       "name": "goods_receipt",
@@ -671,7 +689,16 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "product_in_warehouse": {
+          "name": "product_in_warehouse",
+          "nullsNotDistinct": false,
+          "columns": [
+            "product_id",
+            "warehouse_id"
+          ]
+        }
+      }
     },
     "public.product": {
       "name": "product",

@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS "goods_issue_detail" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"goods_issue_id" integer NOT NULL,
 	"product_id" integer NOT NULL,
-	"quantity" integer DEFAULT 0 NOT NULL
+	"quantity" integer DEFAULT 0 NOT NULL,
+	CONSTRAINT "product_in_goods_issue" UNIQUE("product_id","goods_issue_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "goods_issue" (
@@ -23,7 +24,8 @@ CREATE TABLE IF NOT EXISTS "goods_receipt_detail" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"goods_receipt_id" integer NOT NULL,
 	"product_id" integer NOT NULL,
-	"quantity" integer DEFAULT 0 NOT NULL
+	"quantity" integer DEFAULT 0 NOT NULL,
+	CONSTRAINT "product_in_goods_receipt" UNIQUE("product_id","goods_receipt_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "goods_receipt" (
@@ -45,7 +47,8 @@ CREATE TABLE IF NOT EXISTS "inventory" (
 	"quantity_available" integer DEFAULT 0 NOT NULL,
 	"minimum_stock_level" integer DEFAULT 0 NOT NULL,
 	"maximum_stock_level" integer DEFAULT 0 NOT NULL,
-	"reorder_point" integer DEFAULT 0 NOT NULL
+	"reorder_point" integer DEFAULT 0 NOT NULL,
+	CONSTRAINT "product_in_warehouse" UNIQUE("product_id","warehouse_id")
 );
 --> statement-breakpoint
 DO $$ BEGIN

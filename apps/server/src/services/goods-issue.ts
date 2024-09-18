@@ -1,6 +1,11 @@
 import { SQLWrapper, and, asc, count, desc, eq, or, sql } from "drizzle-orm";
 import { DBType } from "../config/database";
-import { goodsIssueDetailTable, goodsIssueTable } from "../db-schema";
+import { ERROR_CODES, GOODS_ISSUE_STATUS_CODE } from "../config/enums";
+import {
+  goodsIssueDetailTable,
+  goodsIssueTable,
+  inventoryTable,
+} from "../db-schema";
 import { WithAuthenParams } from "../models/base";
 import {
   CreateGoodsIssueParams,
@@ -9,8 +14,10 @@ import {
   GOODS_ISSUE_RELATION_LIST,
   GetDetailGoodsIssueParams,
   GetListGoodsIssueParams,
+  GoodsIssueData,
   UpdateGoodsIssueParams,
 } from "../models/goods-issue";
+import { ApiError } from "../utils/errors";
 
 export default class GoodsIssueService {
   private db;
@@ -61,16 +68,36 @@ export default class GoodsIssueService {
     return relationObj;
   }
 
-  async getListPagePagination(params: GetListGoodsIssueParams) {
-    const {
-      sortBy,
-      sortOrder,
-      limit = 10,
-      page = 1,
-      name,
+  async updateInventory(
+    goodsIssue: GoodsIssueData,
+    items: {
+      quantity: number;
+      productId: number;
+    }[]
+  ) {
+    const excludedQuantityAvailable = sql.raw(
+      `excluded.${inventoryTable.quantityAvailable.name}`
+    );
 
-      includes,
-    } = params;
+    await this.db
+      .insert(inventoryTable)
+      .values(
+        items.map((item) => ({
+          productId: item.productId,
+          quantityAvailable: item.quantity,
+          warehouseId: goodsIssue.warehouseId,
+        }))
+      )
+      .onConflictDoUpdate({
+        target: [inventoryTable.productId, inventoryTable.warehouseId],
+        set: {
+          quantityAvailable: sql`${inventoryTable.quantityAvailable} - ${excludedQuantityAvailable}`,
+        },
+      });
+  }
+
+  async getListPagePagination(params: GetListGoodsIssueParams) {
+    const { sortBy, sortOrder, limit = 10, page = 1, includes } = params;
 
     //* Filters
     const filters: SQLWrapper[] = [];
@@ -153,17 +180,12 @@ export default class GoodsIssueService {
   }
 
   async getDetail(params: GetDetailGoodsIssueParams) {
-    const {
-      id,
-
-      includes,
-    } = params;
+    const { id, includes } = params;
 
     const relations = this.getRelations(includes);
 
     return await this.db.query.goodsIssueTable.findFirst({
       where: eq(goodsIssueTable.id, id),
-
       with: relations,
     });
   }
@@ -180,18 +202,52 @@ export default class GoodsIssueService {
       })
       .returning();
 
+    const newRecord = results[0];
+
     await this.db.insert(goodsIssueDetailTable).values(
       detail.map((item) => ({
         ...item,
-        goodsIssueId: results[0].id,
+        goodsIssueId: newRecord.id,
       }))
     );
 
-    return results[0];
+    if (newRecord.status === GOODS_ISSUE_STATUS_CODE.APPROVED) {
+      await this.updateInventory(newRecord, detail);
+    }
+
+    return newRecord;
   }
 
   async update(params: WithAuthenParams<UpdateGoodsIssueParams>) {
-    const { id, userId, ...rest } = params;
+    const { id, userId, detail, ...rest } = params;
+
+    const record = await this.db.query.goodsIssueTable.findFirst({
+      where: eq(goodsIssueTable.id, id),
+      with: {
+        detail: true,
+      },
+    });
+
+    if (!record) {
+      throw new ApiError({
+        status: "404",
+        errorCode: ERROR_CODES.NOT_FOUND_DATA,
+        title: ERROR_CODES.NOT_FOUND_DATA,
+        messageCode: "not_found_data",
+      });
+    }
+
+    if (
+      record.status === GOODS_ISSUE_STATUS_CODE.APPROVED ||
+      record.status === GOODS_ISSUE_STATUS_CODE.REJECTED
+    ) {
+      throw new ApiError({
+        status: "400",
+        errorCode: ERROR_CODES.GOODS_ISSUE_STATUS_CODE_APPROVED_REJECTED,
+        title: ERROR_CODES.GOODS_ISSUE_STATUS_CODE_APPROVED_REJECTED,
+        messageCode: "goods_issue_status_code_approved_rejected",
+      });
+    }
 
     const results = await this.db
       .update(goodsIssueTable)
@@ -203,7 +259,39 @@ export default class GoodsIssueService {
       .where(eq(goodsIssueTable.id, id))
       .returning();
 
-    return results[0];
+    const newRecord = results[0];
+
+    if (detail && detail.length > 0) {
+      await this.db
+        .insert(goodsIssueDetailTable)
+        .values(
+          detail.map((item) => ({
+            ...item,
+            goodsIssueId: record.id,
+          }))
+        )
+        .onConflictDoUpdate({
+          target: [
+            goodsIssueDetailTable.goodsIssueId,
+            goodsIssueDetailTable.productId,
+          ],
+          set: {
+            quantity: sql.raw(
+              `excluded.${goodsIssueDetailTable.quantity.name}`
+            ),
+          },
+        });
+    }
+
+    if (newRecord.status === GOODS_ISSUE_STATUS_CODE.APPROVED) {
+      if (!detail) {
+        await this.updateInventory(newRecord, record.detail);
+      } else {
+        await this.updateInventory(newRecord, detail);
+      }
+    }
+
+    return newRecord;
   }
 
   async delete(params: DeleteGoodsIssueParams) {

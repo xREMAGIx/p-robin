@@ -74,14 +74,16 @@ export const createGoodsIssueParamSchema = t.Composite([
   }),
 ]);
 
-export const updateGoodsIssueParamSchema = t.Composite([
-  t.Omit(baseInsertGoodsIssueSchema, ["id", "createdAt", "updatedAt"]),
-  t.Object({
-    detail: t.Array(
-      t.Omit(createGoodsIssueDetailParamSchema, ["goodsIssueId"])
-    ),
-  }),
-]);
+export const updateGoodsIssueParamSchema = t.Partial(
+  t.Composite([
+    t.Omit(baseInsertGoodsIssueSchema, ["id", "createdAt", "updatedAt"]),
+    t.Object({
+      detail: t.Array(
+        t.Omit(createGoodsIssueDetailParamSchema, ["goodsIssueId"])
+      ),
+    }),
+  ])
+);
 
 export const deleteGoodsIssueDataSchema = t.Object({
   data: t.Object({ id: t.Number() }),

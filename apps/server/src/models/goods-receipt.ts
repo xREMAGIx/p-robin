@@ -77,14 +77,16 @@ export const createGoodsReceiptParamSchema = t.Composite([
   }),
 ]);
 
-export const updateGoodsReceiptParamSchema = t.Composite([
-  t.Omit(baseInsertGoodsReceiptSchema, ["id", "createdAt", "updatedAt"]),
-  t.Object({
-    detail: t.Array(
-      t.Omit(createGoodsReceiptDetailParamSchema, ["goodsReceiptId"])
-    ),
-  }),
-]);
+export const updateGoodsReceiptParamSchema = t.Partial(
+  t.Composite([
+    t.Omit(baseInsertGoodsReceiptSchema, ["id", "createdAt", "updatedAt"]),
+    t.Object({
+      detail: t.Array(
+        t.Omit(createGoodsReceiptDetailParamSchema, ["goodsReceiptId"])
+      ),
+    }),
+  ])
+);
 
 export const deleteGoodsReceiptDataSchema = t.Object({
   data: t.Object({ id: t.Number() }),
